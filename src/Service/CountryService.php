@@ -50,6 +50,19 @@ final class CountryService
             throw new NotFoundHttpException('Country not found.');
         }
 
+        $payloadIds = [];
+        foreach ($dto->i18n as $i18n) {
+            if (isset($i18n->id)) {
+                $payloadIds[] = $i18n->id;
+            }
+        }
+
+        foreach ($country->getI18n() as $existing) {
+            if (!in_array($existing->getId(), $payloadIds, true)) {
+                $country->removeI18n($existing);
+            }
+        }
+
         foreach ($dto->i18n as $value) {
             if ($value->locale === null) {
                 throw new BadRequestHttpException('Locale is required.');
