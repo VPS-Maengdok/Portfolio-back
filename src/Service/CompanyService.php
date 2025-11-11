@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\DTO\CompanyDTO;
 use App\Entity\Company;
+use App\Entity\Country;
 use App\Repository\CompanyRepository;
 use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,11 +25,7 @@ final class CompanyService
             throw new BadRequestHttpException('Invalid Country id.');
         }
 
-        $company = (new Company())
-            ->setLabel($dto->label)
-            ->setUrl($dto->url)
-            ->setCity($dto->city)
-            ->setCountry($country);
+        $company = $this->hydrateCompany(new Company(), $dto, $country);
 
         $this->em->persist($company);
         $this->em->flush();
@@ -42,26 +39,11 @@ final class CompanyService
             throw new NotFoundHttpException('Company not found.');
         }
 
-        if ($dto->label !== null && $dto->label !== $company->getLabel()) {
-            $company->setLabel($dto->label);
+        if (!$country = $this->countryRepository->find($dto->country)) {
+            throw new BadRequestHttpException('Invalid Country id.');
         }
 
-        if ($dto->url !== null && $dto->url !== $company->getUrl()) {
-            $company->setUrl($dto->url);
-        }
-
-        if ($dto->city !== null && $dto->city !== $company->getCity()) {
-            $company->setCity($dto->city);
-        }
-
-        if ($dto->country !== null && $dto->country !== $company->getCountry()->getId()) {
-            if (!$country = $this->countryRepository->find($dto->country)) {
-                throw new BadRequestHttpException('Invalid Country id.');
-            }
-
-            $company->setCountry($country);
-        }
-
+        $this->hydrateCompany($company, $dto, $country);
         $this->em->flush();
 
         return $company;
@@ -71,5 +53,14 @@ final class CompanyService
     {
         $this->em->remove($company);
         $this->em->flush();
+    }
+
+    private function hydrateCompany(Company $company, CompanyDTO $dto, Country $country): Company
+    {
+        return $company
+            ->setLabel($dto->label)
+            ->setUrl($dto->url)
+            ->setCity($dto->city)
+            ->setCountry($country);
     }
 }

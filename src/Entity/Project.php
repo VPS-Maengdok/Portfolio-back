@@ -73,9 +73,6 @@ class Project
     #[ORM\ManyToOne(inversedBy: 'project')]
     private ?Curriculum $curriculum = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $short_description = null;
-
     public function __construct()
     {
         $this->technology = new ArrayCollection();

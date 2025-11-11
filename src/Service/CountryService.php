@@ -3,8 +3,10 @@
 namespace App\Service;
 
 use App\DTO\CountryDTO;
+use App\DTO\I18n\CountryI18nDTO;
 use App\Entity\Country;
 use App\Entity\CountryI18n;
+use App\Entity\Locale;
 use App\Repository\CountryI18nRepository;
 use App\Repository\CountryRepository;
 use App\Repository\LocaleRepository;
@@ -31,10 +33,8 @@ final class CountryService
                 throw new BadRequestHttpException('Invalid Locale id.');
             }
 
-            $i18n = (new CountryI18n())
-            ->setLabel($value->label)
-            ->setLocale($locale);
-            
+            $i18n = $this->hydrateCountry18n(new CountryI18n(), $value, $locale);
+
             $country->addI18n($i18n);
             $this->em->persist($i18n);
         }
@@ -74,12 +74,10 @@ final class CountryService
 
             if (!isset($value->id)) {
                 if ($this->countryI18nRepository->findOneBy(['country' => $country, 'locale' => $locale])) {
-                    throw new BadRequestHttpException('This Country already has an i18n with this locale.');
+                    throw new BadRequestHttpException('This country already has an i18n with this locale.');
                 }
 
-                $i18n = (new CountryI18n())
-                    ->setLabel($value->label)
-                    ->setLocale($locale);
+                $i18n = $this->hydrateCountry18n(new CountryI18n(), $value, $locale);
 
                 $country->addI18n($i18n);
             } else {
@@ -87,13 +85,7 @@ final class CountryService
                     throw new NotFoundHttpException('Country i18n not found.');
                 }
 
-                if ($existing->getLabel() !== $value->label) {
-                    $existing->setLabel($value->label);
-                }
-
-                if ($existing->getLocale()->getId() !== $locale) {
-                    $existing->setLocale($locale);
-                }
+                $this->hydrateCountry18n($existing, $value, $locale);
             }
         }
 
@@ -106,5 +98,12 @@ final class CountryService
     {
         $this->em->remove($country);
         $this->em->flush();
+    }
+
+    private function hydrateCountry18n(CountryI18n $i18n, CountryI18nDTO $dto, Locale $locale): CountryI18n
+    {
+        return $i18n
+            ->setLabel($dto->label)
+            ->setLocale($locale);
     }
 }

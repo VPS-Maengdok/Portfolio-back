@@ -2,9 +2,7 @@
 
 namespace App\Serializer;
 
-use App\Entity\Language;
 use App\Entity\Link;
-use Doctrine\Common\Collections\Collection;
 
 final class LinkSerializer
 {
@@ -15,17 +13,27 @@ final class LinkSerializer
         }, $links);
     }
 
-    public static function details(Link $link): array
+    public static function details(Link $link, ?bool $everyLocale = false): array
     {
         return [
             'id' => $link->getId(),
             'icon' => $link?->getIcon(),
-            'i18n' => Serializer::i18n($link->getI18n()),
+            'i18n' => $everyLocale ? Serializer::i18nComplete($link->getI18n()->toArray()) : Serializer::i18n($link->getI18n()),
             'url' => $link?->getUrl(),
             'repositoryUrl' => $link?->getRepositoryUrl(),
             'isProject' => $link->isProject(),
-            'project' => $link->getProject() ? ProjectSerializer::details($link->getProject()) : null,
-            'curriculum' => $link?->getCurriculum()?->getId()
+            'project' => $link->getProject()?->getId(),
+            'curriculum' => $link->getCurriculum()?->getId()
         ];
+    }
+
+    public static function create(Link $link): array
+    {
+        return LinkSerializer::details($link, true);
+    }
+
+    public static function update(Link $link): array
+    {
+        return LinkSerializer::details($link, true);
     }
 }

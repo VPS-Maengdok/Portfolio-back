@@ -50,7 +50,12 @@ class CompanyController extends AbstractController
     }
 
     #[Route('/', name: '_create', methods: ['POST'])]
-    public function create(#[MapRequestPayload] CompanyDTO $dto): JsonResponse
+    public function create(
+        #[MapRequestPayload(
+            validationGroups: ['create'], 
+            acceptFormat: 'json'
+        )] CompanyDTO $dto
+    ): JsonResponse
     {
         $company = $this->companyService->create($dto);
         $serializer = CompanySerializer::create($company);
@@ -59,13 +64,19 @@ class CompanyController extends AbstractController
     }
 
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
-    public function update(#[MapRequestPayload] CompanyDTO $dto, Company $company): JsonResponse
+    public function update(
+        #[MapRequestPayload(
+            validationGroups: ['update'], 
+            acceptFormat: 'json'
+        )] CompanyDTO $dto, 
+        Company $company
+    ): JsonResponse
     {
         if (!$company) {
             throw new Exception('Company not found.');
         }
 
-        $company = $this->companyService->update($company->getId(), $dto);
+        $companyService = $this->companyService->update($company->getId(), $dto);
         $serializer = CompanySerializer::update($company);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Company successfully updated.'], $serializer);

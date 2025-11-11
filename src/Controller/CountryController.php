@@ -57,7 +57,12 @@ class CountryController extends AbstractController
     }
 
     #[Route('/', name: '_create', methods: ['POST'])]
-    public function create(#[MapRequestPayload] CountryDTO $dto): JsonResponse
+    public function create(
+        #[MapRequestPayload(
+            validationGroups: ['create'], 
+            acceptFormat: 'json'
+        )] CountryDTO $dto
+    ): JsonResponse
     {
         $country = $this->countryService->create($dto);
         $serializer = CountrySerializer::create($country);
@@ -66,13 +71,19 @@ class CountryController extends AbstractController
     }
 
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
-    public function update(#[MapRequestPayload] CountryDTO $dto, Country $country): JsonResponse
+    public function update(
+        #[MapRequestPayload(
+            validationGroups: ['update'], 
+            acceptFormat: 'json'
+        )] CountryDTO $dto, 
+        Country $country
+    ): JsonResponse
     {
         if (!$country) {
             throw new Exception('Country not found.');
         }
 
-        $country = $this->countryService->update($country->getId(), $dto);
+        $countryService = $this->countryService->update($country->getId(), $dto);
         $serializer = CountrySerializer::update($country);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Country successfully updated.'], $serializer);

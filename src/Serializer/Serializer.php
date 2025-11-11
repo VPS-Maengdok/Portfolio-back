@@ -3,8 +3,6 @@
 namespace App\Serializer;
 
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping\Entity;
-use Exception;
 
 class Serializer
 {
@@ -38,6 +36,23 @@ class Serializer
 
         $additionalRows = Serializer::additionalMethod($additionalFields, $translation);
         return array_merge($base, $additionalRows);
+    }
+
+    public static function i18nComplete(array $i18n, ?array $additionalFields = []): array
+    {
+        return array_map(function ($locale) use ($additionalFields) {
+            $base = [
+                'id' => $locale->getId(),
+                'label' => $locale->getLabel(),
+            ];
+
+            if (!$additionalFields) {
+                return $base;
+            }
+    
+            $additionalRows = Serializer::additionalMethod($additionalFields, $locale);
+            return array_merge($base, $additionalRows);
+        }, $i18n);
     }
 
     private static function additionalMethod(array $additionalFields, object $translation): array
