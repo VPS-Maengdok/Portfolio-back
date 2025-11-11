@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Controller;
+
+use App\DTO\CountryDTO;
+use App\Entity\Country;
+use App\Repository\CountryRepository;
+use App\Serializer\CountrySerializer;
+use App\Service\CountryService;
+use App\Service\Shared\ApiResponseService;
+use App\Service\Shared\LocaleRequestService;
+use Exception;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\Routing\Attribute\Route;
+
+#[Route('/country', name: 'country')]
+class CountryController extends AbstractController
+{
+    public function __construct(
+        private readonly ApiResponseService $apiResponse,
+        private readonly CountryRepository $countryRepository,
+        private readonly CountryService $countryService
+    )
+    {}
+
+    #[Route('/', name:'_list', methods: ['GET'])]
+    public function list(Request $request, LocaleRequestService $localeRequestService): JsonResponse
+    {
+        $lang = $localeRequestService->getLocale($request);
+        $data = $this->countryRepository->findAllWithLocale($lang->getId());
+        $serializer = CountrySerializer::list($data);
+
+        return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
+    }
+
+    #[Route('/{id}', name: '_details', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function details(Request $request, Country $country, LocaleRequestService $localeRequestService): JsonResponse
+    {
+        if (!$country) {
+            throw new Exception('Company not found.');
+        }
+
+        $lang = $localeRequestService->getLocale($request, false);
+
+        if (gettype($lang) === "array") {
+            $data = $this->countryRepository->findOneEveryLocale($country->getId());
+            $serializer = CountrySerializer::detailsWithEveryLocale($data);
+        } else {
+            $data = $this->countryRepository->findOneWithLocale($country->getId(), $lang->getId());
+            $serializer = CountrySerializer::details($data);
+        }
+
+        return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
+    }
+
+    #[Route('/', name: '_create', methods: ['POST'])]
+    public function create(#[MapRequestPayload] CountryDTO $dto): JsonResponse
+    {
+        $country = $this->countryService->create($dto);
+        $serializer = CountrySerializer::create($country);
+
+        return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Country successfully created.'], $serializer);
+    }
+
+    #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
+    public function update(#[MapRequestPayload] CountryDTO $dto, Country $country): JsonResponse
+    {
+        if (!$country) {
+            throw new Exception('Country not found.');
+        }
+
+        $country = $this->countryService->update($country->getId(), $dto);
+        $serializer = CountrySerializer::update($country);
+
+        return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Country successfully updated.'], $serializer);
+    }
+
+    #[Route('/{id}', name: '_delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
+    public function delete(Country $country): JsonResponse
+    {
+        if (!$country) {
+            throw new Exception('Country not found.');
+        }
+
+        $this->countryService->delete($country);
+        
+        return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Country successfully deleted.']);
+    }
+}

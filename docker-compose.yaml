@@ -1,0 +1,31 @@
+services:
+  portfolio_back:
+    container_name: maengdok_portfolio_back
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: php:8.4-fpm
+    working_dir: /srv/portfolio
+    volumes:
+      - ./:/srv/portfolio
+      # - ./docker/php.ini:/usr/local/etc/php/conf.d/zz-app.ini:ro
+    healthcheck:
+      test: ["CMD-SHELL", "php -v >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - caddy
+      - portfolio
+      - postgresql
+    restart: unless-stopped
+
+networks:
+  caddy:
+    external: true
+  portfolio:
+    external: true
+  dcup:
+    external: true
+  postgresql:
+    external: true
