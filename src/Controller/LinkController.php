@@ -42,9 +42,12 @@ class LinkController extends AbstractController
             throw new Exception('Link not found.');
         }
 
+        $query = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocale($request);
-        $data = $this->linkRepository->findOneWithLocale($link->getId(), $lang->getId());
-        $serializer = LinkSerializer::details($data);
+        $data = $query ? 
+            $this->linkRepository->findOneById($link->getId()) : 
+            $this->linkRepository->findOneWithLocale($link->getId(), $lang->getId());
+        $serializer = LinkSerializer::details($data, $query);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

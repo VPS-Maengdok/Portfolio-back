@@ -18,7 +18,9 @@ final class LinkSerializer
         return [
             'id' => $link->getId(),
             'icon' => $link?->getIcon(),
-            'i18n' => $everyLocale ? Serializer::i18nComplete($link->getI18n()->toArray()) : Serializer::i18n($link->getI18n()),
+            'i18n' => $everyLocale ? 
+                Serializer::i18nComplete($link->getI18n()->toArray()) : 
+                Serializer::i18n($link->getI18n()),
             'url' => $link?->getUrl(),
             'repositoryUrl' => $link?->getRepositoryUrl(),
             'isProject' => $link->isProject(),

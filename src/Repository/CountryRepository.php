@@ -75,16 +75,4 @@ class CountryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
-
-    public function findOneEveryLocale(int $country): Country
-    {
-        return $this->createQueryBuilder('c')
-            ->select('c', 'i18n', 'locale')
-            ->andWhere('c.id = :countryId')
-            ->setParameter('countryId', $country)
-            ->leftJoin('c.i18n', 'i18n')
-            ->leftJoin('i18n.locale', 'locale')
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
 }

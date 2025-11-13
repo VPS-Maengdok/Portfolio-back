@@ -43,15 +43,12 @@ class CountryController extends AbstractController
             throw new Exception('Company not found.');
         }
 
+        $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocale($request, false);
-
-        if (gettype($lang) === "array") {
-            $data = $this->countryRepository->findOneEveryLocale($country->getId());
-            $serializer = CountrySerializer::detailsWithEveryLocale($data);
-        } else {
-            $data = $this->countryRepository->findOneWithLocale($country->getId(), $lang->getId());
-            $serializer = CountrySerializer::details($data);
-        }
+        $data = $isFromForm ? 
+            $this->countryRepository->findOneById($country->getId()) :
+            $this->countryRepository->findOneWithLocale($country->getId(), $lang->getId());
+        $serializer = CountrySerializer::details($data, $isFromForm);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

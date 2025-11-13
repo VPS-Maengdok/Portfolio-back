@@ -63,7 +63,7 @@ final class LinkService
                 throw new BadRequestHttpException('Invalid Locale id.');
             }
 
-            $i18n = $this->hydrateLink18n(new LinkI18n(), $value, $locale);
+            $i18n = $this->hydrateLinkI18n(new LinkI18n(), $value, $locale);
             
             $hydratedLink->addI18n($i18n);
             $this->em->persist($i18n);
@@ -109,7 +109,7 @@ final class LinkService
                     throw new BadRequestHttpException('This link already has an i18n with this locale.');
                 }
 
-                $i18n = $this->hydrateLink18n(new LinkI18n(), $value, $locale);
+                $i18n = $this->hydrateLinkI18n(new LinkI18n(), $value, $locale);
 
                 $link->addI18n($i18n);
 
@@ -118,7 +118,7 @@ final class LinkService
                     throw new NotFoundHttpException('Link i18n not found.');
                 }
 
-                $this->hydrateLink18n($existing, $value, $locale);
+                $this->hydrateLinkI18n($existing, $value, $locale);
             }
         }
 
@@ -142,7 +142,7 @@ final class LinkService
             ->setRepositoryUrl($dto->repositoryUrl);
     }
 
-    private function hydrateLink18n(LinkI18n $i18n, LinkI18nDTO $dto, Locale $locale): LinkI18n
+    private function hydrateLinkI18n(LinkI18n $i18n, LinkI18nDTO $dto, Locale $locale): LinkI18n
     {
         return $i18n
             ->setLabel($dto->label)

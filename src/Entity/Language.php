@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Language
 {
     use TimestampableTrait;

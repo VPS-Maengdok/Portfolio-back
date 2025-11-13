@@ -25,7 +25,7 @@ final class CountryService
 
     public function create(CountryDTO $dto): Country
     {
-        $country = (new Country());
+        $country = new Country();
         $this->em->persist($country);
 
         foreach ($dto->i18n as $value) {
@@ -33,7 +33,7 @@ final class CountryService
                 throw new BadRequestHttpException('Invalid Locale id.');
             }
 
-            $i18n = $this->hydrateCountry18n(new CountryI18n(), $value, $locale);
+            $i18n = $this->hydrateCountryI18n(new CountryI18n(), $value, $locale);
 
             $country->addI18n($i18n);
             $this->em->persist($i18n);
@@ -77,7 +77,7 @@ final class CountryService
                     throw new BadRequestHttpException('This country already has an i18n with this locale.');
                 }
 
-                $i18n = $this->hydrateCountry18n(new CountryI18n(), $value, $locale);
+                $i18n = $this->hydrateCountryI18n(new CountryI18n(), $value, $locale);
 
                 $country->addI18n($i18n);
             } else {
@@ -100,7 +100,7 @@ final class CountryService
         $this->em->flush();
     }
 
-    private function hydrateCountry18n(CountryI18n $i18n, CountryI18nDTO $dto, Locale $locale): CountryI18n
+    private function hydrateCountryI18n(CountryI18n $i18n, CountryI18nDTO $dto, Locale $locale): CountryI18n
     {
         return $i18n
             ->setLabel($dto->label)
