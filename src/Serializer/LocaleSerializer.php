@@ -20,4 +20,14 @@ final class LocaleSerializer
             'label' => $locale->getLabel(),
         ];
     }
+
+    public static function create(Locale $locale): array
+    {
+        return LocaleSerializer::details($locale);
+    }
+
+    public static function update(Locale $locale): array
+    {
+        return LocaleSerializer::details($locale);
+    }
 }

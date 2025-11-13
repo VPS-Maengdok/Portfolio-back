@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LocaleRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Locale
 {
     use TimestampableTrait;
@@ -60,17 +61,17 @@ class Locale
 
     public function __construct()
     {
-        $this->tagI18ns = new ArrayCollection();
-        $this->statusI18ns = new ArrayCollection();
-        $this->skillI18ns = new ArrayCollection();
-        $this->workTypeI18ns = new ArrayCollection();
-        $this->countryI18ns = new ArrayCollection();
-        $this->linkI18ns = new ArrayCollection();
-        $this->curriculumI18ns = new ArrayCollection();
-        $this->languageI18ns = new ArrayCollection();
-        $this->experienceI18ns = new ArrayCollection();
-        $this->educationI18ns = new ArrayCollection();
-        $this->projectI18ns = new ArrayCollection();
+        $this->tagI18n = new ArrayCollection();
+        $this->statusI18n = new ArrayCollection();
+        $this->skillI18n = new ArrayCollection();
+        $this->workTypeI18n = new ArrayCollection();
+        $this->countryI18n = new ArrayCollection();
+        $this->linkI18n = new ArrayCollection();
+        $this->curriculumI18n = new ArrayCollection();
+        $this->languageI18n = new ArrayCollection();
+        $this->experienceI18n = new ArrayCollection();
+        $this->educationI18n = new ArrayCollection();
+        $this->projectI18n = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -105,15 +106,15 @@ class Locale
     /**
      * @return Collection<int, TagI18n>
      */
-    public function getTagI18ns(): Collection
+    public function getTagI18n(): Collection
     {
-        return $this->tagI18ns;
+        return $this->tagI18n;
     }
 
     public function addTagI18n(tagI18n $tagI18n): static
     {
-        if (!$this->tagI18ns->contains($tagI18n)) {
-            $this->tagI18ns->add($tagI18n);
+        if (!$this->tagI18n->contains($tagI18n)) {
+            $this->tagI18n->add($tagI18n);
             $tagI18n->setLocale($this);
         }
         return $this;
@@ -121,7 +122,7 @@ class Locale
 
     public function removeTagI18n(tagI18n $tagI18n): static
     {
-        if ($this->tagI18ns->removeElement($tagI18n)) {
+        if ($this->tagI18n->removeElement($tagI18n)) {
             if ($tagI18n->getLocale() === $this) {
                 $tagI18n->setLocale(null);
             }
@@ -132,15 +133,15 @@ class Locale
     /**
      * @return Collection<int, statusI18n>
      */
-    public function getStatusI18ns(): Collection
+    public function getStatusI18n(): Collection
     {
-        return $this->statusI18ns;
+        return $this->statusI18n;
     }
 
     public function addStatusI18n(StatusI18n $statusI18n): static
     {
-        if (!$this->statusI18ns->contains($statusI18n)) {
-            $this->statusI18ns->add($statusI18n);
+        if (!$this->statusI18n->contains($statusI18n)) {
+            $this->statusI18n->add($statusI18n);
             $statusI18n->setLocale($this);
         }
         return $this;
@@ -148,7 +149,7 @@ class Locale
 
     public function removeStatusI18n(StatusI18n $statusI18n): static
     {
-        if ($this->statusI18ns->removeElement($statusI18n)) {
+        if ($this->statusI18n->removeElement($statusI18n)) {
             if ($statusI18n->getLocale() === $this) {
                 $statusI18n->setLocale(null);
             }
@@ -159,15 +160,15 @@ class Locale
     /**
      * @return Collection<int, SkillI18n>
      */
-    public function getSkillI18ns(): Collection
+    public function getSkillI18n(): Collection
     {
-        return $this->skillI18ns;
+        return $this->skillI18n;
     }
 
     public function addSkillI18n(SkillI18n $skillI18n): static
     {
-        if (!$this->skillI18ns->contains($skillI18n)) {
-            $this->skillI18ns->add($skillI18n);
+        if (!$this->skillI18n->contains($skillI18n)) {
+            $this->skillI18n->add($skillI18n);
             $skillI18n->setLocale($this);
         }
         return $this;
@@ -175,7 +176,7 @@ class Locale
 
     public function removeSkillI18n(SkillI18n $skillI18n): static
     {
-        if ($this->skillI18ns->removeElement($skillI18n)) {
+        if ($this->skillI18n->removeElement($skillI18n)) {
             if ($skillI18n->getLocale() === $this) {
                 $skillI18n->setLocale(null);
             }
@@ -186,15 +187,15 @@ class Locale
     /**
      * @return Collection<int, WorkTypeI18n>
      */
-    public function getWorkTypeI18ns(): Collection
+    public function getWorkTypeI18n(): Collection
     {
-        return $this->workTypeI18ns;
+        return $this->workTypeI18n;
     }
 
     public function addWorkTypeI18n(WorkTypeI18n $workTypeI18n): static
     {
-        if (!$this->workTypeI18ns->contains($workTypeI18n)) {
-            $this->workTypeI18ns->add($workTypeI18n);
+        if (!$this->workTypeI18n->contains($workTypeI18n)) {
+            $this->workTypeI18n->add($workTypeI18n);
             $workTypeI18n->setLocale($this);
         }
         return $this;
@@ -202,7 +203,7 @@ class Locale
 
     public function removeWorkTypeI18n(WorkTypeI18n $workTypeI18n): static
     {
-        if ($this->workTypeI18ns->removeElement($workTypeI18n)) {
+        if ($this->workTypeI18n->removeElement($workTypeI18n)) {
             if ($workTypeI18n->getLocale() === $this) {
                 $workTypeI18n->setLocale(null);
             }
@@ -213,15 +214,15 @@ class Locale
     /**
      * @return Collection<int, CountryI18n>
      */
-    public function getCountryI18ns(): Collection
+    public function getCountryI18n(): Collection
     {
-        return $this->countryI18ns;
+        return $this->countryI18n;
     }
 
     public function addCountryI18n(CountryI18n $countryI18n): static
     {
-        if (!$this->countryI18ns->contains($countryI18n)) {
-            $this->countryI18ns->add($countryI18n);
+        if (!$this->countryI18n->contains($countryI18n)) {
+            $this->countryI18n->add($countryI18n);
             $countryI18n->setLocale($this);
         }
         return $this;
@@ -229,7 +230,7 @@ class Locale
 
     public function removeCountryI18n(CountryI18n $countryI18n): static
     {
-        if ($this->countryI18ns->removeElement($countryI18n)) {
+        if ($this->countryI18n->removeElement($countryI18n)) {
             if ($countryI18n->getLocale() === $this) {
                 $countryI18n->setLocale(null);
             }
@@ -240,15 +241,15 @@ class Locale
     /**
      * @return Collection<int, LinkI18n>
      */
-    public function getLinkI18ns(): Collection
+    public function getLinkI18n(): Collection
     {
-        return $this->linkI18ns;
+        return $this->linkI18n;
     }
 
     public function addLinkI18n(LinkI18n $linkI18n): static
     {
-        if (!$this->linkI18ns->contains($linkI18n)) {
-            $this->linkI18ns->add($linkI18n);
+        if (!$this->linkI18n->contains($linkI18n)) {
+            $this->linkI18n->add($linkI18n);
             $linkI18n->setLocale($this);
         }
         return $this;
@@ -256,7 +257,7 @@ class Locale
 
     public function removelinkI18n(LinkI18n $linkI18n): static
     {
-        if ($this->linkI18ns->removeElement($linkI18n)) {
+        if ($this->linkI18n->removeElement($linkI18n)) {
             if ($linkI18n->getLocale() === $this) {
                 $linkI18n->setLocale(null);
             }
@@ -267,15 +268,15 @@ class Locale
     /**
      * @return Collection<int, CurriculumI18n>
      */
-    public function getCurriculumI18ns(): Collection
+    public function getCurriculumI18n(): Collection
     {
-        return $this->curriculumI18ns;
+        return $this->curriculumI18n;
     }
 
     public function addCurriculumI18n(CurriculumI18n $curriculumI18n): static
     {
-        if (!$this->curriculumI18ns->contains($curriculumI18n)) {
-            $this->curriculumI18ns->add($curriculumI18n);
+        if (!$this->curriculumI18n->contains($curriculumI18n)) {
+            $this->curriculumI18n->add($curriculumI18n);
             $curriculumI18n->setLocale($this);
         }
         return $this;
@@ -283,7 +284,7 @@ class Locale
 
     public function removeCurriculumI18n(CurriculumI18n $curriculumI18n): static
     {
-        if ($this->curriculumI18ns->removeElement($curriculumI18n)) {
+        if ($this->curriculumI18n->removeElement($curriculumI18n)) {
             if ($curriculumI18n->getLocale() === $this) {
                 $curriculumI18n->setLocale(null);
             }
@@ -294,15 +295,15 @@ class Locale
     /**
      * @return Collection<int, LanguageI18n>
      */
-    public function getlLnguageI18ns(): Collection
+    public function getlLnguageI18n(): Collection
     {
-        return $this->languageI18ns;
+        return $this->languageI18n;
     }
 
     public function addLanguageI18n(LanguageI18n $languageI18n): static
     {
-        if (!$this->languageI18ns->contains($languageI18n)) {
-            $this->languageI18ns->add($languageI18n);
+        if (!$this->languageI18n->contains($languageI18n)) {
+            $this->languageI18n->add($languageI18n);
             $languageI18n->setLocale($this);
         }
         return $this;
@@ -310,7 +311,7 @@ class Locale
 
     public function removeLanguageI18n(LanguageI18n $languageI18n): static
     {
-        if ($this->languageI18ns->removeElement($languageI18n)) {
+        if ($this->languageI18n->removeElement($languageI18n)) {
             if ($languageI18n->getLocale() === $this) {
                 $languageI18n->setLocale(null);
             }
@@ -321,15 +322,15 @@ class Locale
     /**
      * @return Collection<int, ExperienceI18n>
      */
-    public function getExperienceI18ns(): Collection
+    public function getExperienceI18n(): Collection
     {
-        return $this->experienceI18ns;
+        return $this->experienceI18n;
     }
 
     public function addExperienceI18n(ExperienceI18n $experienceI18n): static
     {
-        if (!$this->experienceI18ns->contains($experienceI18n)) {
-            $this->experienceI18ns->add($experienceI18n);
+        if (!$this->experienceI18n->contains($experienceI18n)) {
+            $this->experienceI18n->add($experienceI18n);
             $experienceI18n->setLocale($this);
         }
         return $this;
@@ -337,7 +338,7 @@ class Locale
 
     public function removeExperienceI18n(ExperienceI18n $experienceI18n): static
     {
-        if ($this->experienceI18ns->removeElement($experienceI18n)) {
+        if ($this->experienceI18n->removeElement($experienceI18n)) {
             if ($experienceI18n->getLocale() === $this) {
                 $experienceI18n->setLocale(null);
             }
@@ -348,15 +349,15 @@ class Locale
     /**
      * @return Collection<int, EducationI18n>
      */
-    public function getEducationI18ns(): Collection
+    public function getEducationI18n(): Collection
     {
-        return $this->educationI18ns;
+        return $this->educationI18n;
     }
 
     public function addEducationI18n(EducationI18n $educationI18n): static
     {
-        if (!$this->educationI18ns->contains($educationI18n)) {
-            $this->educationI18ns->add($educationI18n);
+        if (!$this->educationI18n->contains($educationI18n)) {
+            $this->educationI18n->add($educationI18n);
             $educationI18n->setLocale($this);
         }
         return $this;
@@ -364,7 +365,7 @@ class Locale
 
     public function removeEducationI18n(EducationI18n $educationI18n): static
     {
-        if ($this->educationI18ns->removeElement($educationI18n)) {
+        if ($this->educationI18n->removeElement($educationI18n)) {
             if ($educationI18n->getLocale() === $this) {
                 $educationI18n->setLocale(null);
             }
@@ -375,15 +376,15 @@ class Locale
     /**
      * @return Collection<int, ProjectI18n>
      */
-    public function getProjectI18ns(): Collection
+    public function getProjectI18n(): Collection
     {
-        return $this->projectI18ns;
+        return $this->projectI18n;
     }
 
     public function addProjectI18n(ProjectI18n $projectI18n): static
     {
-        if (!$this->projectI18ns->contains($projectI18n)) {
-            $this->projectI18ns->add($projectI18n);
+        if (!$this->projectI18n->contains($projectI18n)) {
+            $this->projectI18n->add($projectI18n);
             $projectI18n->setLocale($this);
         }
         return $this;
@@ -391,7 +392,7 @@ class Locale
 
     public function removeProjectI18n(ProjectI18n $projectI18n): static
     {
-        if ($this->projectI18ns->removeElement($projectI18n)) {
+        if ($this->projectI18n->removeElement($projectI18n)) {
             if ($projectI18n->getLocale() === $this) {
                 $projectI18n->setLocale(null);
             }

@@ -84,7 +84,7 @@ class CountryController extends AbstractController
         }
 
         $countryService = $this->countryService->update($country->getId(), $dto);
-        $serializer = CountrySerializer::update($country);
+        $serializer = CountrySerializer::update($countryService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Country successfully updated.'], $serializer);
     }

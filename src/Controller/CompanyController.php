@@ -77,7 +77,7 @@ class CompanyController extends AbstractController
         }
 
         $companyService = $this->companyService->update($company->getId(), $dto);
-        $serializer = CompanySerializer::update($company);
+        $serializer = CompanySerializer::update($companyService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Company successfully updated.'], $serializer);
     }
