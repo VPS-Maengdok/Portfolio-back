@@ -10,9 +10,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Service {
     public function __construct(
-        private ProjectRepository $projectRepository,
-        private ExperienceRepository $experienceRepository,
-        private EducationRepository $educationRepository,
+        private readonly ProjectRepository $projectRepository,
+        private readonly ExperienceRepository $experienceRepository,
+        private readonly EducationRepository $educationRepository,
     ) {}
 
     public function validateArrayOfIdsOnCreate(array $ids, string $key, object $hydratedEntity): void
@@ -21,7 +21,7 @@ class Service {
         $add = $this->getMethod('add' . ucfirst($key), $hydratedEntity);
 
         foreach ($ids as $id) {
-            if (!$result = $this->$repository->findOneById($id)) {
+            if (!$result = $repository->findOneById($id)) {
                 throw new NotFoundHttpException(ucfirst($key) . ' not found.');
             }
 
@@ -48,7 +48,7 @@ class Service {
         }
 
         foreach ($ids as $id) {
-            if (!$result = $this->$repository->findOneById($id)) {
+            if (!$result = $repository->findOneById($id)) {
                 throw new NotFoundHttpException(ucfirst($key) . ' not found.');
             }
 

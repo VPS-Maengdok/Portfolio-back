@@ -42,7 +42,7 @@ class CurriculumController extends AbstractController
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository, CurriculumRepository $curriculumRepository): JsonResponse
     {
-        $lang = $localeRepository->getLocale($request);
+        $lang = $localeRepository->getLocaleFromRequest($request);
         $data = $curriculumRepository->findAllWithLocale($lang->getId());
         $collections = [];
 
@@ -62,7 +62,7 @@ class CurriculumController extends AbstractController
             throw new Exception('Curriculum not found.');
         }
 
-        $lang = $localeRequestService->getLocale($request);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $limit = filter_var($request->query->get('limit'), FILTER_VALIDATE_INT) ?: null;
     
         $data = $curriculumRepository->findOneWithLocale($curriculum->getId(), $lang->getId());

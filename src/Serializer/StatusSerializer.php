@@ -15,11 +15,23 @@ final class StatusSerializer extends Serializer
         }, $statuses);
     }
 
-    public function details(Status $status): array
+    public function details(Status $status, ?bool $everyLocale = false): array
     {
         return [
             'id' => $status->getId(),
-            'i18n' => $this->i18n($status->getI18n()),
+            'i18n' => $everyLocale ?
+                $this->i18nComplete($status->getI18n()->toArray()) : 
+                $this->i18n($status->getI18n()),
         ];
+    }
+
+    public function create(Status $status): array
+    {
+        return $this->details($status, true);
+    }
+
+    public function update(Status $status): array
+    {
+        return $this->details($status, true);
     }
 }

@@ -24,7 +24,7 @@ class WorkTypeController extends AbstractController
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository, WorkTypeRepository $workTypeRepository): JsonResponse
     {
-        $lang = $localeRepository->getLocale($request);
+        $lang = $localeRepository->getLocaleFromRequest($request);
         $data = $workTypeRepository->findAllWithLocale($lang->getId());
         $serializer = $this->workTypeSerializer->list($data);
 
@@ -38,7 +38,7 @@ class WorkTypeController extends AbstractController
             throw new Exception('Work Type not found.');
         }
 
-        $lang = $localeRequestService->getLocale($request);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $workTypeRepository->findOneWithLocale($workType->getId(), $lang->getId());
         $serializer = $this->workTypeSerializer->details($data);
 

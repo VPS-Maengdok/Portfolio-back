@@ -24,7 +24,7 @@ class ExperienceController extends AbstractController
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository, ExperienceRepository $experienceRepository): JsonResponse
     {
-        $lang = $localeRepository->getLocale($request);
+        $lang = $localeRepository->getLocaleFromRequest($request);
         $data = $experienceRepository->findAllWithLocale($lang->getId());
         $serializer = $this->experienceSerializer->list($data);
 
@@ -38,7 +38,7 @@ class ExperienceController extends AbstractController
             throw new Exception('Experience not found.');
         }
 
-        $lang = $localeRequestService->getLocale($request);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $experienceRepository->findOneWithLocale($experience->getId(), $lang->getId());
         $serializer = $this->experienceSerializer->details($data);
 

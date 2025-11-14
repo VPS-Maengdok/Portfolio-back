@@ -30,7 +30,7 @@ class CountryController extends AbstractController
     #[Route('/', name:'_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRequestService): JsonResponse
     {
-        $lang = $localeRequestService->getLocale($request);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $this->countryRepository->findAllWithLocale($lang->getId());
         $serializer = $this->countrySerializer->list($data);
 
@@ -45,7 +45,7 @@ class CountryController extends AbstractController
         }
 
         $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
-        $lang = $localeRequestService->getLocale($request, false);
+        $lang = $localeRequestService->getLocaleFromRequest($request, false);
         $data = $isFromForm ? 
             $this->countryRepository->findOneById($country->getId()) :
             $this->countryRepository->findOneWithLocale($country->getId(), $lang->getId());

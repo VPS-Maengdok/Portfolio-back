@@ -24,7 +24,7 @@ class SchoolController extends AbstractController
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository, SchoolRepository $schoolRepository): JsonResponse
     {
-        $lang = $localeRepository->getLocale($request);
+        $lang = $localeRepository->getLocaleFromRequest($request);
         $data = $schoolRepository->findAllWithLocale($lang->getId());
         $serializer = $this->schoolSerializer->list($data);
 
@@ -38,7 +38,7 @@ class SchoolController extends AbstractController
             throw new Exception('School not found.');
         }
 
-        $lang = $localeRequestService->getLocale($request);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $schoolRepository->findOneWithLocale($school->getId(), $lang->getId());
         $serializer = $this->schoolSerializer->details($data);
 

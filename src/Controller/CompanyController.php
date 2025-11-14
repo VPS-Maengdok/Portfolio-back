@@ -29,7 +29,7 @@ class CompanyController extends AbstractController
     #[Route('/', name:'_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRequestService): JsonResponse
     {
-        $lang = $localeRequestService->getLocale($request);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $this->companyRepository->findAllWithLocale($lang->getId());
         $serializer = $this->companySerializer->list($data);
 
@@ -43,7 +43,7 @@ class CompanyController extends AbstractController
             throw new Exception('Company not found.');
         }
 
-        $lang = $localeRequestService->getLocale($request);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $this->companyRepository->findOneWithLocale($company->getId(), $lang->getId());
         $serializer = $this->companySerializer->details($data);
 

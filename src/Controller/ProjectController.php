@@ -24,7 +24,7 @@ class ProjectController extends AbstractController
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository, ProjectRepository $projectRepository): JsonResponse
     {
-        $lang = $localeRepository->getLocale($request);
+        $lang = $localeRepository->getLocaleFromRequest($request);
         $data = $projectRepository->findAllWithLocale($lang->getId());
         $serializer = $this->projectSerializer->list($data);
 
@@ -38,7 +38,7 @@ class ProjectController extends AbstractController
             throw new Exception('Project not found.');
         }
 
-        $lang = $localeRequestService->getLocale($request);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $projectRepository->findOneWithLocale($Project->getId(), $lang->getId());
         $serializer = $this->projectSerializer->details($data);
 

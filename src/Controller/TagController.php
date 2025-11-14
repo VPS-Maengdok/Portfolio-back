@@ -24,7 +24,7 @@ class TagController extends AbstractController
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository, TagRepository $tagRepository): JsonResponse
     {
-        $lang = $localeRepository->getLocale($request);
+        $lang = $localeRepository->getLocaleFromRequest($request);
         $data = $tagRepository->findAllWithLocale($lang->getId());
         $serializer = $this->tagSerializer->list($data);
 
@@ -38,7 +38,7 @@ class TagController extends AbstractController
             throw new Exception('Tag not found.');
         }
 
-        $lang = $localeRequestService->getLocale($request);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $tagRepository->findOneWithLocale($tag->getId(), $lang->getId());
         $serializer = $this->tagSerializer->details($data);
 

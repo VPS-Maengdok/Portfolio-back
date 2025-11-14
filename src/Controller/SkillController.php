@@ -29,7 +29,7 @@ class SkillController extends AbstractController
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository): JsonResponse
     {
-        $lang = $localeRepository->getLocale($request);
+        $lang = $localeRepository->getLocaleFromRequest($request);
         $data = $this->skillRepository->findAllWithLocale($lang->getId());
         $serializer = $this->skillSerializer->list($data);
 
@@ -44,7 +44,7 @@ class SkillController extends AbstractController
         }
 
         $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
-        $lang = $localeRequestService->getLocale($request);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $isFromForm ?
             $this->skillRepository->findOneById($skill->getId()) :
             $this->skillRepository->findOneWithLocale($skill->getId(), $lang->getId());
