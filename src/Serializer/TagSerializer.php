@@ -3,22 +3,21 @@
 namespace App\Serializer;
 
 use App\Entity\Tag;
-use Doctrine\Common\Collections\Collection;
 
-final class TagSerializer
+final class TagSerializer extends Serializer
 {
-    public static function list(array $tags): array
+    public function list(array $tags): array
     {
         return array_map(function ($tag) {
-            return TagSerializer::details($tag);
+            return $this->details($tag);
         }, $tags);
     }
 
-    public static function details(Tag $tag): array
+    public function details(Tag $tag): array
     {
         return [
             'id' => $tag->getId(),
-            'i18n' => Serializer::i18n($tag->getI18n()),
+            'i18n' => $this->i18n($tag->getI18n()),
         ];
     }
 }

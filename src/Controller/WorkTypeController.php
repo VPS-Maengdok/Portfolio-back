@@ -16,15 +16,17 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/work-type', name: 'work_type')]
 class WorkTypeController extends AbstractController
 {
-    public function __construct(private readonly ApiResponseService $apiResponse)
-    {}
+    public function __construct(
+        private readonly ApiResponseService $apiResponse,
+        private readonly WorkTypeSerializer $workTypeSerializer
+    ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository, WorkTypeRepository $workTypeRepository): JsonResponse
     {
         $lang = $localeRepository->getLocale($request);
         $data = $workTypeRepository->findAllWithLocale($lang->getId());
-        $serializer = WorkTypeSerializer::list($data);
+        $serializer = $this->workTypeSerializer->list($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -38,7 +40,7 @@ class WorkTypeController extends AbstractController
 
         $lang = $localeRequestService->getLocale($request);
         $data = $workTypeRepository->findOneWithLocale($workType->getId(), $lang->getId());
-        $serializer = WorkTypeSerializer::details($data);
+        $serializer = $this->workTypeSerializer->details($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

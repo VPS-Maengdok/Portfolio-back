@@ -22,7 +22,8 @@ class LinkController extends AbstractController
     public function __construct(
         private readonly ApiResponseService $apiResponse,
         private readonly LinkRepository $linkRepository,
-        private readonly LinkService $linkService
+        private readonly LinkService $linkService,
+        private readonly LinkSerializer $linkSerializer
     ){}
 
     #[Route('/', name: '_list', methods: ['GET'])]
@@ -30,7 +31,7 @@ class LinkController extends AbstractController
     {
         $lang = $localeRepository->getLocale($request);
         $data = $this->linkRepository->findAllWithLocale($lang->getId());
-        $serializer = LinkSerializer::list($data);
+        $serializer = $this->linkSerializer->list($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -42,12 +43,12 @@ class LinkController extends AbstractController
             throw new Exception('Link not found.');
         }
 
-        $query = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
+        $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocale($request);
-        $data = $query ? 
+        $data = $isFromForm ? 
             $this->linkRepository->findOneById($link->getId()) : 
             $this->linkRepository->findOneWithLocale($link->getId(), $lang->getId());
-        $serializer = LinkSerializer::details($data, $query);
+        $serializer = $this->linkSerializer->details($data, $isFromForm);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -61,7 +62,7 @@ class LinkController extends AbstractController
     ): JsonResponse
     {
         $link = $this->linkService->create($dto);
-        $serializer = LinkSerializer::create($link);
+        $serializer = $this->linkSerializer->create($link);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Link successfully created.'], $serializer);
     }
@@ -80,7 +81,7 @@ class LinkController extends AbstractController
         }
 
         $linkService = $this->linkService->update($link->getId(), $dto);
-        $serializer = LinkSerializer::update($linkService);
+        $serializer = $this->linkSerializer->update($linkService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Link successfully updated.'], $serializer);
     }

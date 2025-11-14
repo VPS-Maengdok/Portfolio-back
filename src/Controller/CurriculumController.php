@@ -35,7 +35,8 @@ class CurriculumController extends AbstractController
         private readonly WorkTypeRepository $workTypeRepository,
         private readonly LanguageRepository $languageRepository,
         private readonly TechnologyRepository $technologyRepository,
-        private readonly LinkRepository $linkRepository
+        private readonly LinkRepository $linkRepository,
+        private readonly CurriculumSerializer $curriculumSerializer
     ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
@@ -49,7 +50,7 @@ class CurriculumController extends AbstractController
             $collections[$cv->getId()] = $this->fetchCollections($cv->getId(), $lang->getId());
         }
     
-        $serializer = CurriculumSerializer::list($data, $collections);
+        $serializer = $this->curriculumSerializer->list($data, $collections);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -67,7 +68,7 @@ class CurriculumController extends AbstractController
         $data = $curriculumRepository->findOneWithLocale($curriculum->getId(), $lang->getId());
         $collections = $this->fetchCollections($curriculum->getId(), $lang->getId(), $limit);
 
-        $serializer = CurriculumSerializer::details($data, $collections);
+        $serializer = $this->curriculumSerializer->details($data, $collections);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

@@ -4,23 +4,25 @@ namespace App\Serializer;
 
 use App\Entity\School;
 
-final class SchoolSerializer
+final class SchoolSerializer extends Serializer
 {
-    public static function list(array $schools): array
+    public function __construct(private readonly CountrySerializer $countrySerializer) {}
+
+    public function list(array $schools): array
     {
         return array_map(function ($school) {
-            return SchoolSerializer::details($school);
+            return $this->details($school);
         }, $schools);
     }
 
-    public static function details(School $school): array
+    public function details(School $school): array
     {
         return [
             'id' => $school->getId(),
             'label' => $school->getLabel(),
             'url' => $school->getUrl(),
             'city' => $school->getCity(),
-            'country' => $school->getCountry() ? CountrySerializer::details($school->getCountry()) : null,
+            'country' => $school->getCountry() ? $this->countrySerializer->details($school->getCountry()) : null,
         ];
     }
 }

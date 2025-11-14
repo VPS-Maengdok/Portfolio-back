@@ -5,38 +5,47 @@ namespace App\Serializer;
 use App\Entity\Project;
 use Doctrine\Common\Collections\Collection;
 
-final class ProjectSerializer
+final class ProjectSerializer extends Serializer
 {
-    public static function list(array $projects): array
+    public function __construct(
+        private readonly CompanySerializer $companySerializer,
+        private readonly SchoolSerializer $schoolSerializer,
+        private readonly StatusSerializer $statusSerializer,
+        private readonly SkillSerializer $skillSerializer,
+        private readonly TechnologySerializer $technologySerializer,
+        private readonly TagSerializer $tagSerializer,
+    ) {}
+
+    public function list(array $projects): array
     {
         return array_map(function ($project) {
-            return ProjectSerializer::details($project, 'list');
+            return $this->details($project, 'list');
         }, $projects);
     }
 
-    public static function details(Project $project, ?string $format = 'details'): array
+    public function details(Project $project, ?string $format = 'details'): array
     {
         return [
             'id' => $project->getId(),
             'isHidden' => $project->isHidden(),
-            'i18n' => ProjectSerializer::getI18n($project->getI18n(), $format),
-            'company' => $project->getCompany() ? CompanySerializer::details($project->getCompany()) : null,
-            'school' => $project->getSchool() ? SchoolSerializer::details($project->getSchool()) : null,
-            'status' => $project->getStatus() ? StatusSerializer::details($project->getStatus()) : null,
-            'skill' => $project->getSkill() ? SkillSerializer::list($project->getSkill()->toArray()) : [],
-            'technology' => $project->getTechnology() ? TechnologySerializer::list($project->getTechnology()->toArray()) : [],
-            'tag' => $project->getTag() ? TagSerializer::list($project->getTag()->toArray()) : [],
+            'i18n' => $this->getI18n($project->getI18n(), $format),
+            'company' => $project->getCompany() ? $this->companySerializer->details($project->getCompany()) : null,
+            'school' => $project->getSchool() ? $this->schoolSerializer->details($project->getSchool()) : null,
+            'status' => $project->getStatus() ? $this->statusSerializer->details($project->getStatus()) : null,
+            'skill' => $project->getSkill() ? $this->skillSerializer->list($project->getSkill()->toArray()) : [],
+            'technology' => $project->getTechnology() ? $this->technologySerializer->list($project->getTechnology()->toArray()) : [],
+            'tag' => $project->getTag() ? $this->tagSerializer->list($project->getTag()->toArray()) : [],
             'picture' => $project->getPicture() ? PictureSerializer::list($project->getPicture()->toArray()) : [],
             'creationDate' => $project->getCreationDate() ? $project->getCreationDate()->format('Y-m-d') : null,
         ];
     }
 
-    private static function getI18n(Collection $i18n, ?string $format = 'list'): array
+    private function getI18n(Collection $i18n, ?string $format = 'list'): array
     {
         return match ($format) {
-            'list' => Serializer::i18n($i18n, ['short_description', 'slug']),
-            'details' => Serializer::i18n($i18n, ['description', 'slug']),
-            'cv' => Serializer::i18n($i18n, ['cvDescription', 'slug']),
+            'list' => $this->i18n($i18n, ['short_description', 'slug']),
+            'details' => $this->i18n($i18n, ['description', 'slug']),
+            'cv' => $this->i18n($i18n, ['cvDescription', 'slug']),
         };
     }
 }

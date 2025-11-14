@@ -3,22 +3,23 @@
 namespace App\Serializer;
 
 use App\Entity\Status;
-use Doctrine\Common\Collections\Collection;
 
-final class StatusSerializer
+final class StatusSerializer extends Serializer
 {
-    public static function list(array $statuses): array
+    public function __construct() {}
+
+    public function list(array $statuses): array
     {
         return array_map(function ($status) {
-            return StatusSerializer::details($status);
+            return $this->details($status);
         }, $statuses);
     }
 
-    public static function details(Status $status): array
+    public function details(Status $status): array
     {
         return [
             'id' => $status->getId(),
-            'i18n' => Serializer::i18n($status->getI18n()),
+            'i18n' => $this->i18n($status->getI18n()),
         ];
     }
 }

@@ -34,7 +34,7 @@ class Technology
      * @var Collection<int, Education>
      */
     #[ORM\ManyToMany(targetEntity: Education::class, mappedBy: 'technology')]
-    private Collection $education;
+    private Collection $educations;
 
     /**
      * @var Collection<int, Project>
@@ -48,7 +48,7 @@ class Technology
     public function __construct()
     {
         $this->experiences = new ArrayCollection();
-        $this->education = new ArrayCollection();
+        $this->educations = new ArrayCollection();
         $this->projects = new ArrayCollection();
     }
 
@@ -111,15 +111,15 @@ class Technology
     /**
      * @return Collection<int, Education>
      */
-    public function getEducation(): Collection
+    public function getEducations(): Collection
     {
-        return $this->education;
+        return $this->educations;
     }
 
     public function addEducation(Education $education): static
     {
-        if (!$this->education->contains($education)) {
-            $this->education->add($education);
+        if (!$this->educations->contains($education)) {
+            $this->educations->add($education);
             $education->addTechnology($this);
         }
 
@@ -128,7 +128,7 @@ class Technology
 
     public function removeEducation(Education $education): static
     {
-        if ($this->education->removeElement($education)) {
+        if ($this->educations->removeElement($education)) {
             $education->removeTechnology($this);
         }
 

@@ -22,7 +22,8 @@ class LanguageController extends AbstractController
     public function __construct(
         private readonly ApiResponseService $apiResponse,
         private readonly LanguageRepository $languageRepository,
-        private readonly LanguageService $languageService
+        private readonly LanguageService $languageService,
+        private readonly LanguageSerializer $languageSerializer
     ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
@@ -30,7 +31,7 @@ class LanguageController extends AbstractController
     {
         $lang = $localeRepository->getLocale($request);
         $data = $languageRepository->findAllWithLocale($lang->getId());
-        $serializer = LanguageSerializer::list($data);
+        $serializer = $this->languageSerializer->list($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -42,12 +43,12 @@ class LanguageController extends AbstractController
             throw new Exception('Language not found.');
         }
 
-        $query = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
+        $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocale($request);
-        $data = $query ? 
+        $data = $isFromForm ? 
         $this->languageRepository->findOneById($language->getId()) :
         $this->languageRepository->findOneWithLocale($language->getId(), $lang->getId());
-        $serializer = LanguageSerializer::details($data);
+        $serializer = $this->languageSerializer->details($data, $isFromForm);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -61,7 +62,7 @@ class LanguageController extends AbstractController
     ): JsonResponse
     {
         $language = $this->languageService->create($dto);
-        $serializer = LanguageSerializer::create($language);
+        $serializer = $this->languageSerializer->create($language);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Language successfully created.'], $serializer);
     }
@@ -80,7 +81,7 @@ class LanguageController extends AbstractController
         }
 
         $languageService = $this->languageService->update($language->getId(), $dto);
-        $serializer = LanguageSerializer::update($languageService);
+        $serializer = $this->languageSerializer->update($languageService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Language successfully updated.'], $serializer);
     }

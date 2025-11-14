@@ -85,7 +85,7 @@ final class CountryService
                     throw new NotFoundHttpException('Country i18n not found.');
                 }
 
-                $this->hydrateCountry18n($existing, $value, $locale);
+                $this->hydrateCountryI18n($existing, $value, $locale);
             }
         }
 

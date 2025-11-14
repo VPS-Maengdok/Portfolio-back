@@ -22,7 +22,8 @@ class CompanyController extends AbstractController
     public function __construct(
         private readonly ApiResponseService $apiResponse,
         private readonly CompanyRepository $companyRepository,
-        private readonly CompanyService $companyService
+        private readonly CompanyService $companyService,
+        private readonly CompanySerializer $companySerializer
     ) {}
 
     #[Route('/', name:'_list', methods: ['GET'])]
@@ -30,7 +31,7 @@ class CompanyController extends AbstractController
     {
         $lang = $localeRequestService->getLocale($request);
         $data = $this->companyRepository->findAllWithLocale($lang->getId());
-        $serializer = CompanySerializer::list($data);
+        $serializer = $this->companySerializer->list($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -44,7 +45,7 @@ class CompanyController extends AbstractController
 
         $lang = $localeRequestService->getLocale($request);
         $data = $this->companyRepository->findOneWithLocale($company->getId(), $lang->getId());
-        $serializer = CompanySerializer::details($data);
+        $serializer = $this->companySerializer->details($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -58,7 +59,7 @@ class CompanyController extends AbstractController
     ): JsonResponse
     {
         $company = $this->companyService->create($dto);
-        $serializer = CompanySerializer::create($company);
+        $serializer = $this->companySerializer->create($company);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Company successfully created.'], $serializer);
     }
@@ -77,7 +78,7 @@ class CompanyController extends AbstractController
         }
 
         $companyService = $this->companyService->update($company->getId(), $dto);
-        $serializer = CompanySerializer::update($companyService);
+        $serializer = $this->companySerializer->update($companyService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Company successfully updated.'], $serializer);
     }

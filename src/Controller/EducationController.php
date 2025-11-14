@@ -16,15 +16,17 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/education', name: 'education')]
 class EducationController extends AbstractController
 {
-    public function __construct(private readonly ApiResponseService $apiResponse)
-    {}
+    public function __construct(
+        private readonly ApiResponseService $apiResponse,
+        private readonly EducationSerializer $educationSerializer
+    ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository, EducationRepository $educationRepository): JsonResponse
     {
         $lang = $localeRepository->getLocale($request);
         $data = $educationRepository->findAllWithLocale($lang->getId());
-        $serializer = EducationSerializer::list($data);
+        $serializer = $this->educationSerializer->list($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -38,7 +40,7 @@ class EducationController extends AbstractController
 
         $lang = $localeRequestService->getLocale($request);
         $data = $educationRepository->findOneWithLocale($education->getId(), $lang->getId());
-        $serializer = EducationSerializer::details($data);
+        $serializer = $this->educationSerializer->details($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

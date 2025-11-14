@@ -16,15 +16,17 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/experience', name: 'experience')]
 class ExperienceController extends AbstractController
 {
-    public function __construct(private readonly ApiResponseService $apiResponse)
-    {}
+    public function __construct(
+        private readonly ApiResponseService $apiResponse,
+        private readonly ExperienceSerializer $experienceSerializer
+    ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository, ExperienceRepository $experienceRepository): JsonResponse
     {
         $lang = $localeRepository->getLocale($request);
         $data = $experienceRepository->findAllWithLocale($lang->getId());
-        $serializer = ExperienceSerializer::list($data);
+        $serializer = $this->experienceSerializer->list($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -38,7 +40,7 @@ class ExperienceController extends AbstractController
 
         $lang = $localeRequestService->getLocale($request);
         $data = $experienceRepository->findOneWithLocale($experience->getId(), $lang->getId());
-        $serializer = ExperienceSerializer::details($data);
+        $serializer = $this->experienceSerializer->details($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

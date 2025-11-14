@@ -7,6 +7,7 @@ use App\Entity\Trait\TimestampableTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EducationI18nRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class EducationI18n
 {
     use TimestampableTrait;

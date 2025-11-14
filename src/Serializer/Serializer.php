@@ -6,7 +6,9 @@ use Doctrine\Common\Collections\Collection;
 
 class Serializer
 {
-    public static function first18nIteration(?iterable $i18n): ?object
+    public function __construct() {}
+
+    public function first18nIteration(?iterable $i18n): ?object
     {
         if (!$i18n) {
             return null;
@@ -19,9 +21,9 @@ class Serializer
         return null;
     }
 
-    public static function i18n(Collection $i18n, ?array $additionalFields = []): array
+    public function i18n(Collection $i18n, ?array $additionalFields = []): array
     {        
-        if (!$translation = Serializer::first18nIteration($i18n)) {
+        if (!$translation = $this->first18nIteration($i18n)) {
             return [];
         }
 
@@ -34,11 +36,11 @@ class Serializer
             return $base;
         }
 
-        $additionalRows = Serializer::additionalMethod($additionalFields, $translation);
+        $additionalRows = $this->additionalMethod($additionalFields, $translation);
         return array_merge($base, $additionalRows);
     }
 
-    public static function i18nComplete(array $i18n, ?array $additionalFields = []): array
+    public function i18nComplete(array $i18n, ?array $additionalFields = []): array
     {
         return array_map(function ($locale) use ($additionalFields) {
             $base = [
@@ -50,12 +52,12 @@ class Serializer
                 return $base;
             }
     
-            $additionalRows = Serializer::additionalMethod($additionalFields, $locale);
+            $additionalRows = $this->additionalMethod($additionalFields, $locale);
             return array_merge($base, $additionalRows);
         }, $i18n);
     }
 
-    private static function additionalMethod(array $additionalFields, object $translation): array
+    private function additionalMethod(array $additionalFields, object $translation): array
     {
         $result = [];
 

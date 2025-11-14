@@ -3,22 +3,21 @@
 namespace App\Serializer;
 
 use App\Entity\WorkType;
-use Doctrine\Common\Collections\Collection;
 
-final class WorkTypeSerializer
+final class WorkTypeSerializer extends Serializer
 {
-    public static function list(array $workTypes): array
+    public function list(array $workTypes): array
     {
         return array_map(function ($workType) {
-            return WorkTypeSerializer::details($workType);
+            return $this->details($workType);
         }, $workTypes);
     }
 
-    public static function details(WorkType $workType): array
+    public function details(WorkType $workType): array
     {
         return [
             'id' => $workType->getId(),
-            'i18n' => Serializer::i18n($workType->getI18n()),
+            'i18n' => $this->i18n($workType->getI18n()),
         ];
     }
 }

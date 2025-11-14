@@ -8,6 +8,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ExperienceI18nRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class ExperienceI18n
 {
     use TimestampableTrait;

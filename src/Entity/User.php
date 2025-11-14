@@ -2,13 +2,17 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\TimestampableTrait;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[ORM\HasLifecycleCallbacks]
 class User
 {
+    use TimestampableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

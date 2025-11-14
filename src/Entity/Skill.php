@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SkillRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Skill
 {
     use TimestampableTrait;
@@ -34,7 +35,7 @@ class Skill
      * @var Collection<int, Education>
      */
     #[ORM\ManyToMany(targetEntity: Education::class, mappedBy: 'skill')]
-    private Collection $education;
+    private Collection $educations;
 
     /**
      * @var Collection<int, Project>
@@ -49,7 +50,7 @@ class Skill
     {
         $this->i18n = new ArrayCollection();
         $this->experiences = new ArrayCollection();
-        $this->education = new ArrayCollection();
+        $this->educations = new ArrayCollection();
         $this->projects = new ArrayCollection();
     }
 
@@ -118,15 +119,15 @@ class Skill
     /**
      * @return Collection<int, Education>
      */
-    public function getEducation(): Collection
+    public function getEducations(): Collection
     {
-        return $this->education;
+        return $this->educations;
     }
 
     public function addEducation(Education $education): static
     {
-        if (!$this->education->contains($education)) {
-            $this->education->add($education);
+        if (!$this->educations->contains($education)) {
+            $this->educations->add($education);
             $education->addSkill($this);
         }
 
@@ -135,7 +136,7 @@ class Skill
 
     public function removeEducation(Education $education): static
     {
-        if ($this->education->removeElement($education)) {
+        if ($this->educations->removeElement($education)) {
             $education->removeSkill($this);
         }
 

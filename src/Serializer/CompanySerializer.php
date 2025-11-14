@@ -4,33 +4,35 @@ namespace App\Serializer;
 
 use App\Entity\Company;
 
-final class CompanySerializer
+final class CompanySerializer extends Serializer
 {
-    public static function list(array $companies): array
+    public function __construct(private readonly CountrySerializer $countrySerializer) {}
+
+    public function list(array $companies): array
     {
         return array_map(function ($company) {
-            return CompanySerializer::details($company);
+            return $this->details($company);
         }, $companies);
     }
 
-    public static function details(Company $company): array
+    public function details(Company $company): array
     {
         return [
             'id' => $company->getId(),
             'label' => $company->getLabel(),
             'url' => $company->getUrl(),
             'city' => $company->getCity(),
-            'country' => $company->getCountry() ? CountrySerializer::details($company->getCountry()) : null,
+            'country' => $company->getCountry() ? $this->countrySerializer->details($company->getCountry()) : null,
         ];
     }
 
-    public static function create(Company $company): array
+    public function create(Company $company): array
     {
-        return CompanySerializer::details($company);
+        return $this->details($company);
     }
 
-    public static function update(Company $company): array
+    public function update(Company $company): array
     {
-        return CompanySerializer::details($company);
+        return $this->details($company);
     }
 }

@@ -16,15 +16,17 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/tag', name: 'tag')]
 class TagController extends AbstractController
 {
-    public function __construct(private readonly ApiResponseService $apiResponse)
-    {}
+    public function __construct(
+        private readonly ApiResponseService $apiResponse,
+        private readonly TagSerializer $tagSerializer
+    ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository, TagRepository $tagRepository): JsonResponse
     {
         $lang = $localeRepository->getLocale($request);
         $data = $tagRepository->findAllWithLocale($lang->getId());
-        $serializer = TagSerializer::list($data);
+        $serializer = $this->tagSerializer->list($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -38,7 +40,7 @@ class TagController extends AbstractController
 
         $lang = $localeRequestService->getLocale($request);
         $data = $tagRepository->findOneWithLocale($tag->getId(), $lang->getId());
-        $serializer = TagSerializer::details($data);
+        $serializer = $this->tagSerializer->details($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

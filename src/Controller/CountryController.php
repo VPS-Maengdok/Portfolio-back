@@ -22,7 +22,8 @@ class CountryController extends AbstractController
     public function __construct(
         private readonly ApiResponseService $apiResponse,
         private readonly CountryRepository $countryRepository,
-        private readonly CountryService $countryService
+        private readonly CountryService $countryService,
+        private readonly CountrySerializer $countrySerializer
     )
     {}
 
@@ -31,7 +32,7 @@ class CountryController extends AbstractController
     {
         $lang = $localeRequestService->getLocale($request);
         $data = $this->countryRepository->findAllWithLocale($lang->getId());
-        $serializer = CountrySerializer::list($data);
+        $serializer = $this->countrySerializer->list($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -48,7 +49,7 @@ class CountryController extends AbstractController
         $data = $isFromForm ? 
             $this->countryRepository->findOneById($country->getId()) :
             $this->countryRepository->findOneWithLocale($country->getId(), $lang->getId());
-        $serializer = CountrySerializer::details($data, $isFromForm);
+        $serializer = $this->countrySerializer->details($data, $isFromForm);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -62,7 +63,7 @@ class CountryController extends AbstractController
     ): JsonResponse
     {
         $country = $this->countryService->create($dto);
-        $serializer = CountrySerializer::create($country);
+        $serializer = $this->countrySerializer->create($country);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Country successfully created.'], $serializer);
     }
@@ -81,7 +82,7 @@ class CountryController extends AbstractController
         }
 
         $countryService = $this->countryService->update($country->getId(), $dto);
-        $serializer = CountrySerializer::update($countryService);
+        $serializer = $this->countrySerializer->update($countryService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Country successfully updated.'], $serializer);
     }

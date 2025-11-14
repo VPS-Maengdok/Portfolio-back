@@ -3,35 +3,36 @@
 namespace App\Serializer;
 
 use App\Entity\Language;
-use Doctrine\Common\Collections\Collection;
 
-final class LanguageSerializer
+final class LanguageSerializer extends Serializer
 {
-    public static function list(array $languages): array
+    public function __construct() {}
+
+    public function list(array $languages): array
     {
         return array_map(function ($language) {
-            return LanguageSerializer::details($language);
+            return $this->details($language);
         }, $languages);
     }
 
-    public static function details(Language $language, ?bool $everyLocale = false): array
+    public function details(Language $language, ?bool $everyLocale = false): array
     {
         return [
             'id' => $language->getId(),
             'i18n' => $everyLocale ? 
-                Serializer::i18nComplete($language->getI18n()->toArray(), ['level']) : 
-                Serializer::i18n($language->getI18n(), ['level']),
+                $this->i18nComplete($language->getI18n()->toArray(), ['level']) : 
+                $this->i18n($language->getI18n(), ['level']),
             'curriculum' => $language->getCurriculum()?->getId(),
         ];
     }
 
-    public static function create(Language $language): array
+    public function create(Language $language): array
     {
-        return LanguageSerializer::details($language, true);
+        return $this->details($language, true);
     }
 
-    public static function update(Language $language): array
+    public function update(Language $language): array
     {
-        return LanguageSerializer::details($language, true);
+        return $this->details($language, true);
     }
 }

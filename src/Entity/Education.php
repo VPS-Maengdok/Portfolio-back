@@ -10,6 +10,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EducationRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Education
 {
     use TimestampableTrait;
@@ -31,7 +32,7 @@ class Education
     /**
      * @var Collection<int, Skill>
      */
-    #[ORM\ManyToMany(targetEntity: Skill::class, inversedBy: 'education')]
+    #[ORM\ManyToMany(targetEntity: Skill::class, inversedBy: 'educations')]
     private Collection $skill;
 
     /**

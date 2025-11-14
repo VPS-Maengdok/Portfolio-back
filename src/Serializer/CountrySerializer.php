@@ -4,32 +4,34 @@ namespace App\Serializer;
 
 use App\Entity\Country;
 
-final class CountrySerializer
+final class CountrySerializer extends Serializer
 {
-    public static function list(array $countries): array
+    public function __construct() {}
+
+    public function list(array $countries): array
     {
         return array_map(function ($country) {
-            return CountrySerializer::details($country);
+            return $this->details($country);
         }, $countries);
     }
 
-    public static function details(Country $country, ?bool $everyLocale = false): array
+    public function details(Country $country, ?bool $everyLocale = false): array
     {
         return [
             'id' => $country->getId(),
             'i18n' => $everyLocale ? 
-                Serializer::i18nComplete($country->getI18n()->toArray()) :
-                Serializer::i18n($country->getI18n()),
+                $this->i18nComplete($country->getI18n()->toArray()) :
+                $this->i18n($country->getI18n()),
         ];
     }
 
-    public static function create(Country $country): array
+    public function create(Country $country): array
     {
-        return CountrySerializer::details($country, true);
+        return $this->details($country, true);
     }
 
-    public static function update(Country $country): array
+    public function update(Country $country): array
     {
-        return CountrySerializer::details($country, true);
+        return $this->details($country, true);
     }
 }
