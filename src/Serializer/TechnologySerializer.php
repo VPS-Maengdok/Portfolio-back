@@ -21,4 +21,13 @@ final class TechnologySerializer
             'label' => $technology->getLabel(),
         ];
     }
+    public function create(Technology $technology): array
+    {
+        return $this->details($technology);
+    }
+
+    public function update(Technology $technology): array
+    {
+        return $this->details($technology);
+    }
 }

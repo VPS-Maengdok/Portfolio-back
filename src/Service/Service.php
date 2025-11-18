@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Curriculum;
 use App\Repository\EducationRepository;
 use App\Repository\ExperienceRepository;
 use App\Repository\ProjectRepository;
@@ -56,7 +57,7 @@ class Service {
                 $hydratedEntity->$add($result);
             }
         }
-    }
+    } 
 
     public function getMethod(string $key, object $entity): string
     {

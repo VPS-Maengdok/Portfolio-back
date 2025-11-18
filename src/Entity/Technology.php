@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TechnologyRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Technology
 {
     use TimestampableTrait;

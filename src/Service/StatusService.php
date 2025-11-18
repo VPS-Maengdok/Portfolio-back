@@ -29,7 +29,6 @@ final class StatusService extends Service
         private readonly EducationRepository $educationRepository,
     ) {
         parent::__construct($projectRepository, $experienceRepository, $educationRepository);
-
     }
 
     public function create(StatusDTO $dto): Status
