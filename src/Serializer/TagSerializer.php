@@ -13,11 +13,23 @@ final class TagSerializer extends Serializer
         }, $tags);
     }
 
-    public function details(Tag $tag): array
+    public function details(Tag $tag, ?bool $everyLocale = false): array
     {
         return [
             'id' => $tag->getId(),
-            'i18n' => $this->i18n($tag->getI18n()),
+            'i18n' => $everyLocale ?
+                $this->i18nComplete($tag->getI18n()->toArray()) :
+                $this->i18n($tag->getI18n()),
         ];
+    }
+
+    public function create(Tag $tag): array
+    {
+        return $this->details($tag, true);
+    }
+
+    public function update(Tag $tag): array
+    {
+        return $this->details($tag, true);
     }
 }

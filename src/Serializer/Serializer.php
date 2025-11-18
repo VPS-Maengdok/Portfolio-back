@@ -42,7 +42,7 @@ class Serializer
 
     public function i18nComplete(array $i18n, ?array $additionalFields = []): array
     {
-        return array_map(function ($locale) use ($additionalFields) {
+        return array_values(array_map(function ($locale) use ($additionalFields) {
             $base = [
                 'id' => $locale->getId(),
                 'label' => $locale->getLabel(),
@@ -54,7 +54,7 @@ class Serializer
     
             $additionalRows = $this->additionalMethod($additionalFields, $locale);
             return array_merge($base, $additionalRows);
-        }, $i18n);
+        }, $i18n));
     }
 
     private function additionalMethod(array $additionalFields, object $translation): array
