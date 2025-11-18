@@ -13,11 +13,23 @@ final class WorkTypeSerializer extends Serializer
         }, $workTypes);
     }
 
-    public function details(WorkType $workType): array
+    public function details(WorkType $workType, ?bool $everyLocale = false): array
     {
         return [
             'id' => $workType->getId(),
-            'i18n' => $this->i18n($workType->getI18n()),
+            'i18n' => $everyLocale ?
+                $this->i18nComplete($workType->getI18n()->toArray()) :
+                $this->i18n($workType->getI18n()),
         ];
+    }
+
+    public function create(WorkType $workType): array
+    {
+        return $this->details($workType, true);
+    }
+
+    public function update(WorkType $workType): array
+    {
+        return $this->details($workType, true);
     }
 }
