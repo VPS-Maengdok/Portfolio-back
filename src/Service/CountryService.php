@@ -44,12 +44,8 @@ final class CountryService
         return $country;
     }
 
-    public function update(int $id, CountryDTO $dto): Country
+    public function update(Country $country, CountryDTO $dto): Country
     {
-        if (!$country = $this->countryRepository->find($id)) {
-            throw new NotFoundHttpException('Country not found.');
-        }
-
         $payloadIds = [];
         foreach ($dto->i18n as $i18n) {
             if (isset($i18n->id)) {

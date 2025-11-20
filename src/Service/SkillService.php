@@ -73,12 +73,8 @@ final class SkillService extends Service
         return $hydratedSkill;
     }
 
-    public function update(int $id, SkillDTO $dto): Skill
+    public function update(Skill $skill, SkillDTO $dto): Skill
     {
-        if (!$skill = $this->skillRepository->find($id)) {
-            throw new NotFoundHttpException('Skill not found.');
-        }
-
         $payloadIds = [];
         foreach ($dto->i18n as $i18n) {
             if (isset($i18n->id)) {

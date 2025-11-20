@@ -39,7 +39,7 @@ class ExperienceController extends AbstractController
         }
 
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $experienceRepository->findOneWithLocale($experience->getId(), $lang->getId());
+        $data = $experienceRepository->findOneWithLocale($experience, $lang->getId());
         $serializer = $this->experienceSerializer->details($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);

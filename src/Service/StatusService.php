@@ -57,12 +57,8 @@ final class StatusService extends Service
         return $hydratedStatus;
     }
 
-    public function update(int $id, StatusDTO $dto): Status
+    public function update(Status $status, StatusDTO $dto): Status
     {
-        if (!$status = $this->statusRepository->find($id)) {
-            throw new NotFoundHttpException('Status not found.');
-        }
-
         $payloadIds = [];
         foreach ($dto->i18n as $i18n) {
             if (isset($i18n->id)) {

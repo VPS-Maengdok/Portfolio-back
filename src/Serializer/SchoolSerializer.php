@@ -22,7 +22,19 @@ final class SchoolSerializer extends Serializer
             'label' => $school->getLabel(),
             'url' => $school->getUrl(),
             'city' => $school->getCity(),
-            'country' => $school->getCountry() ? $this->countrySerializer->details($school->getCountry()) : null,
+            'country' => $school->getCountry() ? 
+                $this->countrySerializer->details($school->getCountry()) : 
+                null,
         ];
+    }
+
+    public function create(School $school): array
+    {
+        return $this->details($school);
+    }
+
+    public function update(School $school): array
+    {
+        return $this->details($school);
     }
 }

@@ -71,7 +71,7 @@ class LocaleController extends AbstractController
             throw new Exception('Locale not found.');
         }
 
-        $localeService = $this->localeService->update($locale->getId(), $dto);
+        $localeService = $this->localeService->update($locale, $dto);
         $serializer = LocaleSerializer::update($localeService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Locale successfully updated.'], $serializer);

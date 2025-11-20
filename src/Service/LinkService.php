@@ -74,12 +74,8 @@ final class LinkService
         return $hydratedLink;
     }
 
-    public function update(int $id, LinkDTO $dto): Link
+    public function update(Link $link, LinkDTO $dto): Link
     {
-        if (!$link = $this->linkRepository->find($id)) {
-            throw new NotFoundHttpException('Link not found.');
-        }
-
         $hydratedLink = $this->hydrateLink($link, $dto);
 
         $payloadIds = [];

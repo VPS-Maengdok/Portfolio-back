@@ -80,7 +80,7 @@ class LinkController extends AbstractController
             throw new Exception('Link not found.');
         }
 
-        $linkService = $this->linkService->update($link->getId(), $dto);
+        $linkService = $this->linkService->update($link, $dto);
         $serializer = $this->linkSerializer->update($linkService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Link successfully updated.'], $serializer);

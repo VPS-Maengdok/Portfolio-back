@@ -25,12 +25,8 @@ final class LocaleService
         return $locale;
     }
 
-    public function update(int $id, LocaleDTO $dto): Locale
+    public function update(Locale $locale, LocaleDTO $dto): Locale
     {
-        if (!$locale = $this->localeRepository->find($id)) {
-            throw new NotFoundHttpException('Locale not found.');
-        }
-
         $this->hydrateLocale($locale, $dto);
         $this->em->flush();
 

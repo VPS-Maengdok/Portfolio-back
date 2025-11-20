@@ -77,7 +77,7 @@ class TagController extends AbstractController
             throw new Exception('Tag not found.');
         }
 
-        $tagService = $this->tagService->update($tag->getId(), $dto);
+        $tagService = $this->tagService->update($tag, $dto);
         $serializer = $this->tagSerializer->update($tagService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Tag successfully updated.'], $serializer);

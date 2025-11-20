@@ -39,7 +39,7 @@ class ProjectController extends AbstractController
         }
 
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $projectRepository->findOneWithLocale($Project->getId(), $lang->getId());
+        $data = $projectRepository->findOneWithLocale($Project, $lang->getId());
         $serializer = $this->projectSerializer->details($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);

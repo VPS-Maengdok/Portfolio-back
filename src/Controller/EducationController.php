@@ -39,7 +39,7 @@ class EducationController extends AbstractController
         }
 
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $educationRepository->findOneWithLocale($education->getId(), $lang->getId());
+        $data = $educationRepository->findOneWithLocale($education, $lang->getId());
         $serializer = $this->educationSerializer->details($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);

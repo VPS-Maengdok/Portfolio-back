@@ -69,12 +69,8 @@ final class WorkTypeService extends Service
         return $hydratedWorkType;
     }
 
-    public function update(int $id, WorkTypeDTO $dto): WorkType
+    public function update(WorkType $workType, WorkTypeDTO $dto): WorkType
     {
-        if (!$workType = $this->workTypeRepository->find($id)) {
-            throw new NotFoundHttpException('WorkType not found.');
-        }
-
         $payloadIds = [];
         foreach ($dto->i18n as $i18n) {
             if (isset($i18n->id)) {

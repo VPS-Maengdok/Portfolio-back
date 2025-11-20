@@ -61,12 +61,8 @@ final class TechnologyService extends Service
         return $hydratedTechnology;
     }
 
-    public function update(int $id, TechnologyDTO $dto): Technology
+    public function update(Technology $technology, TechnologyDTO $dto): Technology
     {
-        if (!$technology = $this->technologyRepository->find($id)) {
-            throw new NotFoundHttpException('Technology not found.');
-        }
-
         if ($dto->experience) {
             $this->validateArrayOfIdsOnCreate($dto->experience, 'experience', $technology);
         }

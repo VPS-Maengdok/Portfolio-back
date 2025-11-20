@@ -77,7 +77,7 @@ class WorkTypeController extends AbstractController
             throw new Exception('WorkType not found.');
         }
 
-        $workTypeService = $this->workTypeService->update($workType->getId(), $dto);
+        $workTypeService = $this->workTypeService->update($workType, $dto);
         $serializer = $this->workTypeSerializer->update($workTypeService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'WorkType successfully updated.'], $serializer);

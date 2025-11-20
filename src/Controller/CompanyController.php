@@ -77,7 +77,7 @@ class CompanyController extends AbstractController
             throw new Exception('Company not found.');
         }
 
-        $companyService = $this->companyService->update($company->getId(), $dto);
+        $companyService = $this->companyService->update($company, $dto);
         $serializer = $this->companySerializer->update($companyService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Company successfully updated.'], $serializer);

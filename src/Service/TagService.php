@@ -57,12 +57,8 @@ final class TagService extends Service
         return $hydratedTag;
     }
 
-    public function update(int $id, TagDTO $dto): Tag
+    public function update(Tag $tag, TagDTO $dto): Tag
     {
-        if (!$tag = $this->tagRepository->find($id)) {
-            throw new NotFoundHttpException('Tag not found.');
-        }
-
         $payloadIds = [];
         foreach ($dto->i18n as $i18n) {
             if (isset($i18n->id)) {

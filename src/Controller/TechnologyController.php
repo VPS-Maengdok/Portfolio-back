@@ -72,7 +72,7 @@ class TechnologyController extends AbstractController
             throw new Exception('Technology not found.');
         }
 
-        $technologyService = $this->technologyService->update($technology->getId(), $dto);
+        $technologyService = $this->technologyService->update($technology, $dto);
         $serializer = $this->technologySerializer->update($technologyService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Technology successfully updated.'], $serializer);

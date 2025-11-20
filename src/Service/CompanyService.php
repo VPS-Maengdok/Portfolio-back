@@ -33,12 +33,8 @@ final class CompanyService
         return $company;
     }
 
-    public function update(int $id, CompanyDTO $dto): Company
+    public function update(Company $company, CompanyDTO $dto): Company
     {
-        if (!$company = $this->companyRepository->find($id)) {
-            throw new NotFoundHttpException('Company not found.');
-        }
-
         if (!$country = $this->countryRepository->find($dto->country)) {
             throw new BadRequestHttpException('Invalid Country id.');
         }

@@ -65,7 +65,7 @@ class CurriculumController extends AbstractController
         $lang = $localeRequestService->getLocaleFromRequest($request);
         $limit = filter_var($request->query->get('limit'), FILTER_VALIDATE_INT) ?: null;
     
-        $data = $curriculumRepository->findOneWithLocale($curriculum->getId(), $lang->getId());
+        $data = $curriculumRepository->findOneWithLocale($curriculum, $lang->getId());
         $collections = $this->fetchCollections($curriculum->getId(), $lang->getId(), $limit);
 
         $serializer = $this->curriculumSerializer->details($data, $collections);

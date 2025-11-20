@@ -81,7 +81,7 @@ class CountryController extends AbstractController
             throw new Exception('Country not found.');
         }
 
-        $countryService = $this->countryService->update($country->getId(), $dto);
+        $countryService = $this->countryService->update($country, $dto);
         $serializer = $this->countrySerializer->update($countryService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Country successfully updated.'], $serializer);

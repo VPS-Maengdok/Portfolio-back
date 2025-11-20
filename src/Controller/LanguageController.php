@@ -80,7 +80,7 @@ class LanguageController extends AbstractController
             throw new Exception('Language not found.');
         }
 
-        $languageService = $this->languageService->update($language->getId(), $dto);
+        $languageService = $this->languageService->update($language, $dto);
         $serializer = $this->languageSerializer->update($languageService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Language successfully updated.'], $serializer);

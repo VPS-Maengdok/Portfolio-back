@@ -63,12 +63,8 @@ final class LanguageService
         return $hydratedLanguage;
     }
 
-    public function update(int $id, LanguageDTO $dto): Language
+    public function update(Language $language, LanguageDTO $dto): Language
     {
-        if (!$language = $this->languageRepository->find($id)) {
-            throw new NotFoundHttpException('Language not found.');
-        }
-
         $payloadIds = [];
         foreach ($dto->i18n as $i18n) {
             if (isset($i18n->id)) {

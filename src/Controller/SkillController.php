@@ -80,7 +80,7 @@ class SkillController extends AbstractController
             throw new Exception('Skill not found.');
         }
 
-        $skillService = $this->skillService->update($skill->getId(), $dto);
+        $skillService = $this->skillService->update($skill, $dto);
         $serializer = $this->skillSerializer->update($skillService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Skill successfully updated.'], $serializer);

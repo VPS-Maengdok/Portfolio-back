@@ -80,7 +80,7 @@ class StatusController extends AbstractController
             throw new Exception('Status not found.');
         }
 
-        $statusService = $this->statusService->update($status->getId(), $dto);
+        $statusService = $this->statusService->update($status, $dto);
         $serializer = $this->statusSerializer->update($statusService);
 
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Status successfully updated.'], $serializer);
