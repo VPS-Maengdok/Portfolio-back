@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\EducationI18nRepository;
 use App\Entity\Trait\TimestampableTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EducationI18nRepository::class)]
@@ -25,6 +26,9 @@ class EducationI18n
 
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'countryI18n')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -73,6 +77,18 @@ class EducationI18n
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }

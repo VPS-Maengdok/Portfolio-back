@@ -6,6 +6,8 @@ use App\Entity\Curriculum;
 use App\Repository\EducationRepository;
 use App\Repository\ExperienceRepository;
 use App\Repository\ProjectRepository;
+use App\Repository\SkillRepository;
+use App\Repository\TechnologyRepository;
 use LogicException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -14,6 +16,8 @@ class Service {
         private readonly ProjectRepository $projectRepository,
         private readonly ExperienceRepository $experienceRepository,
         private readonly EducationRepository $educationRepository,
+        private readonly SkillRepository $skillRepository,
+        private readonly TechnologyRepository $technologyRepository
     ) {}
 
     public function validateArrayOfIdsOnCreate(array $ids, string $key, object $hydratedEntity): void
@@ -74,6 +78,8 @@ class Service {
             'experience' => $this->experienceRepository,
             'education'  => $this->educationRepository,
             'project'    => $this->projectRepository,
+            'skill'      => $this->skillRepository,
+            'technology' => $this->technologyRepository,
             default      => throw new NotFoundHttpException("Unknown Repository key: $key"),
         };
     }

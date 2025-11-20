@@ -8,9 +8,13 @@ use App\Entity\Skill;
 use App\Entity\SkillI18n;
 use App\Entity\Locale;
 use App\Repository\CurriculumRepository;
+use App\Repository\EducationRepository;
+use App\Repository\ExperienceRepository;
 use App\Repository\SkillI18nRepository;
 use App\Repository\SkillRepository;
 use App\Repository\LocaleRepository;
+use App\Repository\ProjectRepository;
+use App\Repository\TechnologyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -18,13 +22,18 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 final class SkillService extends Service
 {
     public function __construct(
-        private SkillRepository $skillRepository,
         private SkillI18nRepository $skillI18nRepository,
         private CurriculumRepository $curriculumRepository,
         private LocaleRepository $localeRepository,
-        private EntityManagerInterface $em
-    ) {}
-
+        private EntityManagerInterface $em,
+        private readonly ProjectRepository $projectRepository,
+        private readonly ExperienceRepository $experienceRepository,
+        private readonly EducationRepository $educationRepository,
+        private readonly SkillRepository $skillRepository,
+        private readonly TechnologyRepository $technologyRepository
+    ) {
+        parent::__construct($projectRepository, $experienceRepository, $educationRepository, $skillRepository, $technologyRepository);
+    }
     public function create(SkillDTO $dto): Skill
     {
         $hydratedSkill = new Skill();

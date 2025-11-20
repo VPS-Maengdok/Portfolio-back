@@ -9,20 +9,22 @@ use App\Repository\EducationRepository;
 use App\Repository\ExperienceRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\ProjectRepository;
+use App\Repository\SkillRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class TechnologyService extends Service
 {
     public function __construct(
-        private readonly TechnologyRepository $technologyRepository,
         private readonly CurriculumRepository $curriculumRepository,
         private readonly EntityManagerInterface $em,
         private readonly ProjectRepository $projectRepository,
         private readonly ExperienceRepository $experienceRepository,
         private readonly EducationRepository $educationRepository,
+        private readonly SkillRepository $skillRepository,
+        private readonly TechnologyRepository $technologyRepository
     ) {
-        parent::__construct($projectRepository, $experienceRepository, $educationRepository);
+        parent::__construct($projectRepository, $experienceRepository, $educationRepository, $skillRepository, $technologyRepository);
     }
 
     public function create(TechnologyDTO $dto): Technology

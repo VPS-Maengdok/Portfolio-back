@@ -29,7 +29,8 @@ class Serializer
 
         $base = [
             'id' => $translation->getId(),
-            'label' => $translation->getLabel(),   
+            'label' => $translation->getLabel(), 
+            'locale' => $translation->getLocale()->getId(),  
         ];
 
         if (!$additionalFields) {
@@ -42,10 +43,11 @@ class Serializer
 
     public function i18nComplete(array $i18n, ?array $additionalFields = []): array
     {
-        return array_values(array_map(function ($locale) use ($additionalFields) {
+        $result = array_values(array_map(function ($locale) use ($additionalFields) {
             $base = [
                 'id' => $locale->getId(),
                 'label' => $locale->getLabel(),
+                'locale' => $locale->getLocale()->getId(),  
             ];
 
             if (!$additionalFields) {
@@ -55,6 +57,10 @@ class Serializer
             $additionalRows = $this->additionalMethod($additionalFields, $locale);
             return array_merge($base, $additionalRows);
         }, $i18n));
+
+        array_multisort(array_column($result, 'id'), SORT_ASC, $result);
+
+        return $result;
     }
 
     private function additionalMethod(array $additionalFields, object $translation): array

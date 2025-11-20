@@ -19,16 +19,28 @@ final class EducationSerializer extends Serializer
         }, $educations);
     }
 
-    public function details(Education $education): array
+    public function details(Education $education, ?bool $everyLocale = false): array
     {
         return [
             'id' => $education->getId(),
-            'i18n' => $this->i18n($education->getI18n(), ['diploma', 'slug']),
+            'i18n' => $everyLocale ?
+                $this->i18nComplete($education->getI18n()->toArray(), ['diploma', 'slug']) :
+                $this->i18n($education->getI18n(), ['diploma', 'slug']),
             'school' => $education->getSchool() ? $this->schoolSerializer->details($education->getSchool()) : null,
             'skill' => $education->getSkill() ? $this->skillSerializer->list($education->getSkill()->toArray()) : [],
             'technology' => $education->getTechnology() ? $this->technologySerializer->list($education->getTechnology()->toArray()) : [],
             'startingDate' => $education->getStartingDate() ? $education->getStartingDate()->format('Y-m-d') : null,
             'endingDate' => $education->getEndingDate() ? $education->getEndingDate()->format('Y-m-d') : null,
         ];
+    }
+
+        public function create(Education $education): array
+    {
+        return $this->details($education, true);
+    }
+
+    public function update(Education $education): array
+    {
+        return $this->details($education, true);
     }
 }

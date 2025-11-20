@@ -13,6 +13,8 @@ use App\Repository\TagI18nRepository;
 use App\Repository\TagRepository;
 use App\Repository\LocaleRepository;
 use App\Repository\ProjectRepository;
+use App\Repository\SkillRepository;
+use App\Repository\TechnologyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -27,8 +29,10 @@ final class TagService extends Service
         private readonly ProjectRepository $projectRepository,
         private readonly ExperienceRepository $experienceRepository,
         private readonly EducationRepository $educationRepository,
+        private readonly SkillRepository $skillRepository,
+        private readonly TechnologyRepository $technologyRepository
     ) {
-        parent::__construct($projectRepository, $experienceRepository, $educationRepository);
+        parent::__construct($projectRepository, $experienceRepository, $educationRepository, $skillRepository, $technologyRepository);
     }
 
     public function create(TagDTO $dto): Tag
