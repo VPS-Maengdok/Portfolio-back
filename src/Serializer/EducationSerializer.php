@@ -31,10 +31,11 @@ final class EducationSerializer extends Serializer
             'technology' => $education->getTechnology() ? $this->technologySerializer->list($education->getTechnology()->toArray()) : [],
             'startingDate' => $education->getStartingDate() ? $education->getStartingDate()->format('Y-m-d') : null,
             'endingDate' => $education->getEndingDate() ? $education->getEndingDate()->format('Y-m-d') : null,
+            'curriculum' => $education->getCurriculum()?->getId(),
         ];
     }
 
-        public function create(Education $education): array
+    public function create(Education $education): array
     {
         return $this->details($education, true);
     }

@@ -22,6 +22,7 @@ final class SkillSerializer extends Serializer
             'i18n' => $everyLocale ? 
                 $this->i18nComplete($skill->getI18n()->toArray()) :
                 $this->i18n($skill->getI18n()),
+            'curriculum' => $skill->getCurriculum()?->getId(),
         ];
     }
 

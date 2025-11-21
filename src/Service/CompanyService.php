@@ -9,7 +9,6 @@ use App\Repository\CompanyRepository;
 use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CompanyService
 {

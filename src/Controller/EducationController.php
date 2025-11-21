@@ -27,24 +27,24 @@ class EducationController extends AbstractController
     ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
-    public function list(Request $request, LocaleRequestService $localeRepository, EducationRepository $educationRepository): JsonResponse
+    public function list(Request $request, LocaleRequestService $localeRepository): JsonResponse
     {
         $lang = $localeRepository->getLocaleFromRequest($request);
-        $data = $educationRepository->findAllWithLocale($lang->getId());
+        $data = $this->educationRepository->findAllWithLocale($lang->getId());
         $serializer = $this->educationSerializer->list($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
 
     #[Route('/{id}', name: '_details', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function details(Request $request, Education $education, LocaleRequestService $localeRequestService, EducationRepository $educationRepository): JsonResponse
+    public function details(Request $request, Education $education, LocaleRequestService $localeRequestService): JsonResponse
     {
         if (!$education) {
             throw new Exception('Education not found.');
         }
 
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $educationRepository->findOneWithLocale($education->getId(), $lang->getId());
+        $data = $this->educationRepository->findOneWithLocale($education->getId(), $lang->getId());
         $serializer = $this->educationSerializer->details($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);

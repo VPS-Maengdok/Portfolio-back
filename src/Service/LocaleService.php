@@ -6,7 +6,6 @@ use App\DTO\LocaleDTO;
 use App\Entity\Locale;
 use App\Repository\LocaleRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class LocaleService
 {

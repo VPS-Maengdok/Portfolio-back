@@ -8,9 +8,13 @@ final class TechnologySerializer
 {
     public static function list(array $technologies): array
     {
-        return array_map(function ($technology) {
+        $result = array_map(function ($technology) {
             return TechnologySerializer::details($technology);
         }, $technologies);
+
+        array_multisort(array_column($result, 'id'), SORT_ASC, $result);
+
+        return $result;
     }
 
     public static function details(Technology $technology): array
@@ -19,6 +23,7 @@ final class TechnologySerializer
             'id' => $technology->getId(),
             'icon' => $technology?->getIcon(),
             'label' => $technology->getLabel(),
+            'curriculum' => $technology->getCurriculum()?->getId(),
         ];
     }
     public function create(Technology $technology): array

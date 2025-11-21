@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Entity\Curriculum;
 use App\Repository\EducationRepository;
 use App\Repository\ExperienceRepository;
 use App\Repository\ProjectRepository;

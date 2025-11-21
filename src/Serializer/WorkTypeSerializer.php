@@ -20,6 +20,7 @@ final class WorkTypeSerializer extends Serializer
             'i18n' => $everyLocale ?
                 $this->i18nComplete($workType->getI18n()->toArray()) :
                 $this->i18n($workType->getI18n()),
+            'curriculum' => $workType->getCurriculum()?->getId(),
         ];
     }
 
