@@ -79,7 +79,7 @@ class EducationRepository extends ServiceEntityRepository
         return $req->getQuery()->getResult();
     }
 
-    public function findOneWithLocale(int $education, int $locale): Education
+    public function findOneWithLocale(int $education, int $locale): ?Education
     {
         return $this->createQueryBuilder('e')
             ->select('DISTINCT e', 'i18n', 'locale', 'school', 'school_country', 'country_i18n', 'country_locale', 'skill', 'skill_i18n', 'skill_locale', 'technology')

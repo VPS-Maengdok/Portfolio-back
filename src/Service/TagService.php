@@ -19,9 +19,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class TagService extends Service
+final class TagService
 {
     public function __construct(
+        private readonly RelationService $relationService,
         private readonly TagRepository $tagRepository,
         private readonly TagI18nRepository $tagI18nRepository,
         private readonly LocaleRepository $localeRepository,
@@ -31,16 +32,14 @@ final class TagService extends Service
         private readonly EducationRepository $educationRepository,
         private readonly SkillRepository $skillRepository,
         private readonly TechnologyRepository $technologyRepository
-    ) {
-        parent::__construct($projectRepository, $experienceRepository, $educationRepository, $skillRepository, $technologyRepository);
-    }
+    ) {}
 
     public function create(TagDTO $dto): Tag
     {
         $hydratedTag = new Tag();
 
         if ($dto->project) {
-            $this->validateArrayOfIdsOnCreate($dto->project, 'project', $hydratedTag);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->project, 'project', $hydratedTag);
         }
 
         $this->em->persist($hydratedTag);
@@ -77,7 +76,7 @@ final class TagService extends Service
         }
 
         if ($dto->project) {
-            $this->validateArrayOfIdsOnUpdate($dto->project, 'project', $tag);
+            $this->relationService->validateArrayOfIdsOnUpdate($dto->project, 'project', $tag);
         }
 
         foreach ($dto->i18n as $value) {

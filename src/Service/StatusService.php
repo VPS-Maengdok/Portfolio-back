@@ -19,9 +19,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class StatusService extends Service
+final class StatusService
 {
     public function __construct(
+        private readonly RelationService $relationService,
         private readonly StatusRepository $statusRepository,
         private readonly StatusI18nRepository $statusI18nRepository,
         private readonly LocaleRepository $localeRepository,
@@ -31,16 +32,14 @@ final class StatusService extends Service
         private readonly EducationRepository $educationRepository,
         private readonly SkillRepository $skillRepository,
         private readonly TechnologyRepository $technologyRepository
-    ) {
-        parent::__construct($projectRepository, $experienceRepository, $educationRepository, $skillRepository, $technologyRepository);
-    }
+    ) {}
 
     public function create(StatusDTO $dto): Status
     {
         $hydratedStatus = new Status();
 
         if ($dto->project) {
-            $this->validateArrayOfIdsOnCreate($dto->project, 'project', $hydratedStatus);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->project, 'project', $hydratedStatus);
         }
 
         $this->em->persist($hydratedStatus);
@@ -77,7 +76,7 @@ final class StatusService extends Service
         }
 
         if ($dto->project) {
-            $this->validateArrayOfIdsOnUpdate($dto->project, 'project', $status);
+            $this->relationService->validateArrayOfIdsOnUpdate($dto->project, 'project', $status);
         }
 
         foreach ($dto->i18n as $value) {

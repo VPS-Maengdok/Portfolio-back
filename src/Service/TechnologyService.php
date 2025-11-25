@@ -13,9 +13,10 @@ use App\Repository\SkillRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class TechnologyService extends Service
+final class TechnologyService
 {
     public function __construct(
+        private readonly RelationService $relationService,
         private readonly CurriculumRepository $curriculumRepository,
         private readonly EntityManagerInterface $em,
         private readonly ProjectRepository $projectRepository,
@@ -23,24 +24,22 @@ final class TechnologyService extends Service
         private readonly EducationRepository $educationRepository,
         private readonly SkillRepository $skillRepository,
         private readonly TechnologyRepository $technologyRepository
-    ) {
-        parent::__construct($projectRepository, $experienceRepository, $educationRepository, $skillRepository, $technologyRepository);
-    }
+    ) {}
 
     public function create(TechnologyDTO $dto): Technology
     {
         $hydratedTechnology = $this->hydrateTechnology(new Technology(), $dto);
 
         if ($dto->experience) {
-            $this->validateArrayOfIdsOnCreate($dto->experience, 'experience', $hydratedTechnology);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->experience, 'experience', $hydratedTechnology);
         }
 
         if ($dto->education) {
-            $this->validateArrayOfIdsOnCreate($dto->education, 'education', $hydratedTechnology);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->education, 'education', $hydratedTechnology);
         }
         
         if ($dto->project) {
-            $this->validateArrayOfIdsOnCreate($dto->project, 'project', $hydratedTechnology);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->project, 'project', $hydratedTechnology);
         }
 
         if ($dto->curriculum) {
@@ -66,15 +65,15 @@ final class TechnologyService extends Service
     public function update(Technology $technology, TechnologyDTO $dto): Technology
     {
         if ($dto->experience) {
-            $this->validateArrayOfIdsOnCreate($dto->experience, 'experience', $technology);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->experience, 'experience', $technology);
         }
 
         if ($dto->education) {
-            $this->validateArrayOfIdsOnCreate($dto->education, 'education', $technology);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->education, 'education', $technology);
         }
         
         if ($dto->project) {
-            $this->validateArrayOfIdsOnCreate($dto->project, 'project', $technology);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->project, 'project', $technology);
         }
 
         if ($dto->curriculum) {

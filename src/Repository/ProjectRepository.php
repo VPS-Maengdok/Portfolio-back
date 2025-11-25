@@ -93,7 +93,7 @@ class ProjectRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findOneWithLocale(int $project, int $locale): Project
+    public function findOneWithLocale(int $project, int $locale): ?Project
     {
         return $this->createQueryBuilder('p')
             ->select(
@@ -106,6 +106,8 @@ class ProjectRepository extends ServiceEntityRepository
                 'status','status_i18n',
                 'technology','picture'
             )
+            ->andWhere('p.id = :id')
+            ->setParameter('id', $project)
 
             ->leftJoin('p.i18n', 'i18n')
             ->leftJoin('i18n.locale', 'loc')

@@ -19,9 +19,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class SkillService extends Service
+final class SkillService
 {
     public function __construct(
+        private readonly RelationService $relationService,
         private SkillI18nRepository $skillI18nRepository,
         private CurriculumRepository $curriculumRepository,
         private LocaleRepository $localeRepository,
@@ -31,9 +32,7 @@ final class SkillService extends Service
         private readonly EducationRepository $educationRepository,
         private readonly SkillRepository $skillRepository,
         private readonly TechnologyRepository $technologyRepository
-    ) {
-        parent::__construct($projectRepository, $experienceRepository, $educationRepository, $skillRepository, $technologyRepository);
-    }
+    ) {}
     public function create(SkillDTO $dto): Skill
     {
         $hydratedSkill = new Skill();
@@ -53,15 +52,15 @@ final class SkillService extends Service
         }
 
         if ($dto->experience) {
-            $this->validateArrayOfIdsOnCreate($dto->experience, 'experience', $hydratedSkill);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->experience, 'experience', $hydratedSkill);
         }
 
         if ($dto->education) {
-            $this->validateArrayOfIdsOnCreate($dto->education, 'education', $hydratedSkill);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->education, 'education', $hydratedSkill);
         }
 
         if ($dto->project) {
-            $this->validateArrayOfIdsOnCreate($dto->project, 'project', $hydratedSkill);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->project, 'project', $hydratedSkill);
         }
 
         $this->em->persist($hydratedSkill);
@@ -98,15 +97,15 @@ final class SkillService extends Service
         }
 
         if ($dto->experience) {
-            $this->validateArrayOfIdsOnUpdate($dto->experience, 'experience', $skill);
+            $this->relationService->validateArrayOfIdsOnUpdate($dto->experience, 'experience', $skill);
         }
 
         if ($dto->education) {
-            $this->validateArrayOfIdsOnUpdate($dto->education, 'education', $skill);
+            $this->relationService->validateArrayOfIdsOnUpdate($dto->education, 'education', $skill);
         }
 
         if ($dto->project) {
-            $this->validateArrayOfIdsOnUpdate($dto->project, 'project', $skill);
+            $this->relationService->validateArrayOfIdsOnUpdate($dto->project, 'project', $skill);
         }
 
         if ($dto->curriculum) {

@@ -11,15 +11,20 @@ final class LocaleRequestService
 {
     public function __construct(private LocaleRepository $localeRepository) {}
 
-    public function getLocaleFromRequest(Request $request): Locale
+    public function getLocaleFromRequest(Request $request): Locale | null
     {
         $query = strtolower($request->query->get('locale'));
+
+        if ($query === 'all') {
+            return null;
+        }
+
         $key = array_search($query, Constant::LOCALES, true);
 
         if ($key !== false) {
             return $this->localeRepository->findOneByShortened(Constant::LOCALES[$key]);
-        } 
-                
+        }
+        
         return $this->localeRepository->findOneByShortened(Constant::DEFAULT_LOCALE); 
     }
 

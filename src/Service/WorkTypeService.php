@@ -20,21 +20,15 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class WorkTypeService extends Service
+final class WorkTypeService
 {
     public function __construct(
-        private readonly WorkTypeRepository $workTypeRepository,
+        private readonly RelationService $relationService,
         private readonly WorkTypeI18nRepository $workTypeI18nRepository,
         private readonly CurriculumRepository $curriculumRepository,
         private readonly LocaleRepository $localeRepository,
         private readonly EntityManagerInterface $em,
-        private readonly ProjectRepository $projectRepository,
-        private readonly ExperienceRepository $experienceRepository,
-        private readonly EducationRepository $educationRepository,
-        private readonly SkillRepository $skillRepository,
-        private readonly TechnologyRepository $technologyRepository
     ) {
-        parent::__construct($projectRepository, $experienceRepository, $educationRepository, $skillRepository, $technologyRepository);
     }
 
     public function create(WorkTypeDTO $dto): WorkType

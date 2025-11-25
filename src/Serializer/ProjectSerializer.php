@@ -23,12 +23,14 @@ final class ProjectSerializer extends Serializer
         }, $projects);
     }
 
-    public function details(Project $project, ?string $format = 'details'): array
+    public function details(Project $project, ?bool $everyLocale = false, ?string $format = 'details'): array
     {
         return [
             'id' => $project->getId(),
             'isHidden' => $project->isHidden(),
-            'i18n' => $this->getI18n($project->getI18n(), $format),
+            'i18n' => $everyLocale ? 
+                $this->getI18n($project->getI18n(), 'admin') :
+                $this->getI18n($project->getI18n(), $format),
             'company' => $project->getCompany() ? $this->companySerializer->details($project->getCompany()) : null,
             'school' => $project->getSchool() ? $this->schoolSerializer->details($project->getSchool()) : null,
             'status' => $project->getStatus() ? $this->statusSerializer->details($project->getStatus()) : null,
@@ -40,12 +42,23 @@ final class ProjectSerializer extends Serializer
         ];
     }
 
-    private function getI18n(Collection $i18n, ?string $format = 'list'): array
+    public function create(Project $project): array
+    {
+        return $this->details($project, true);
+    }
+
+    public function update(Project $project): array
+    {
+        return $this->details($project, true);
+    }
+
+    private function getI18n(Collection $i18n, string $format): array
     {
         return match ($format) {
-            'list' => $this->i18n($i18n, ['short_description', 'slug']),
+            'list' => $this->i18n($i18n, ['shortDescription', 'slug']),
             'details' => $this->i18n($i18n, ['description', 'slug']),
             'cv' => $this->i18n($i18n, ['cvDescription', 'slug']),
+            'admin' => $this->i18nComplete($i18n->toArray(), ['description', 'shortDescription', 'cvDescription', 'slug'])
         };
     }
 }

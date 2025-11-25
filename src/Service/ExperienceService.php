@@ -20,9 +20,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class ExperienceService extends Service
+final class ExperienceService
 {
     public function __construct(
+        private readonly RelationService $relationService,
         private readonly ExperienceI18nRepository $experienceI18nRepository,
         private readonly CompanyRepository $companyRepository,
         private readonly CurriculumRepository $curriculumRepository,
@@ -33,9 +34,7 @@ final class ExperienceService extends Service
         private readonly EducationRepository $educationRepository,
         private readonly SkillRepository $skillRepository,
         private readonly TechnologyRepository $technologyRepository
-    ) {
-        parent::__construct($projectRepository, $experienceRepository, $educationRepository, $skillRepository, $technologyRepository);
-    }
+    ) {}
 
     public function create(ExperienceDTO $dto): Experience
     {
@@ -64,11 +63,11 @@ final class ExperienceService extends Service
         }
 
         if ($dto->skill) {
-            $this->validateArrayOfIdsOnCreate($dto->skill, 'skill', $hydratedExperience);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->skill, 'skill', $hydratedExperience);
         }
 
         if ($dto->technology) {
-            $this->validateArrayOfIdsOnCreate($dto->technology, 'technology', $hydratedExperience);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->technology, 'technology', $hydratedExperience);
         }
 
         $this->em->persist($hydratedExperience);
@@ -127,11 +126,11 @@ final class ExperienceService extends Service
         }
 
         if ($dto->skill) {
-            $this->validateArrayOfIdsOnCreate($dto->skill, 'skill', $experience);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->skill, 'skill', $experience);
         }
 
         if ($dto->technology) {
-            $this->validateArrayOfIdsOnCreate($dto->technology, 'technology', $experience);
+            $this->relationService->validateArrayOfIdsOnCreate($dto->technology, 'technology', $experience);
         }
 
         foreach ($dto->i18n as $value) {
