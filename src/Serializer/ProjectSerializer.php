@@ -39,6 +39,7 @@ final class ProjectSerializer extends Serializer
             'tag' => $project->getTag() ? $this->tagSerializer->list($project->getTag()->toArray()) : [],
             'picture' => $project->getPicture() ? PictureSerializer::list($project->getPicture()->toArray()) : [],
             'creationDate' => $project->getCreationDate() ? $project->getCreationDate()->format('Y-m-d') : null,
+            'curriculum' => $project?->getCurriculum()?->getId(),
         ];
     }
 

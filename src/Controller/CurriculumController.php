@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DTO\CurriculumDTO;
 use App\Entity\Curriculum;
 use App\Repository\CountryRepository;
 use App\Repository\CurriculumRepository;
@@ -14,12 +15,14 @@ use App\Repository\SkillRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\WorkTypeRepository;
 use App\Serializer\CurriculumSerializer;
+use App\Service\CurriculumService;
 use App\Service\Shared\ApiResponseService;
 use App\Service\Shared\LocaleRequestService;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/curriculum', name: 'curriculum')]
@@ -36,14 +39,16 @@ class CurriculumController extends AbstractController
         private readonly LanguageRepository $languageRepository,
         private readonly TechnologyRepository $technologyRepository,
         private readonly LinkRepository $linkRepository,
-        private readonly CurriculumSerializer $curriculumSerializer
+        private readonly CurriculumSerializer $curriculumSerializer,
+        private readonly CurriculumService $curriculumService,
+        private readonly CurriculumRepository $curriculumRepository
     ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
-    public function list(Request $request, LocaleRequestService $localeRepository, CurriculumRepository $curriculumRepository): JsonResponse
+    public function list(Request $request, LocaleRequestService $localeRepository): JsonResponse
     {
         $lang = $localeRepository->getLocaleFromRequest($request);
-        $data = $curriculumRepository->findAllWithLocale($lang->getId());
+        $data = $this->curriculumRepository->findAllWithLocale($lang->getId());
         $collections = [];
 
         foreach ($data as $cv) {
@@ -56,7 +61,7 @@ class CurriculumController extends AbstractController
     }
 
     #[Route('/{id}', name: '_details', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function details(Request $request, Curriculum $curriculum, LocaleRequestService $localeRequestService, CurriculumRepository $curriculumRepository): JsonResponse
+    public function details(Request $request, Curriculum $curriculum, LocaleRequestService $localeRequestService): JsonResponse
     {
         if (!$curriculum) {
             throw new Exception('Curriculum not found.');
@@ -65,12 +70,57 @@ class CurriculumController extends AbstractController
         $lang = $localeRequestService->getLocaleFromRequest($request);
         $limit = filter_var($request->query->get('limit'), FILTER_VALIDATE_INT) ?: null;
     
-        $data = $curriculumRepository->findOneWithLocale($curriculum, $lang->getId());
+        $data = $this->curriculumRepository->findOneWithLocale($curriculum->getId(), $lang->getId());
         $collections = $this->fetchCollections($curriculum->getId(), $lang->getId(), $limit);
 
         $serializer = $this->curriculumSerializer->details($data, $collections);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
+    }
+
+    #[Route('/', name: '_create', methods: ['POST'])]
+    public function create(
+        #[MapRequestPayload(
+            validationGroups: ['create'], 
+            acceptFormat: 'json'
+        )] CurriculumDTO $dto
+    ): JsonResponse
+    {
+        $curriculum = $this->curriculumService->create($dto);
+        $serializer = $this->curriculumSerializer->create($curriculum);
+
+        return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Curriculum successfully created.'], $serializer);
+    }
+
+    #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
+    public function update(
+        #[MapRequestPayload(
+            validationGroups: ['update'], 
+            acceptFormat: 'json'
+        )] CurriculumDTO $dto, 
+        Curriculum $curriculum
+    ): JsonResponse
+    {
+        if (!$curriculum) {
+            throw new Exception('Curriculum not found.');
+        }
+
+        $curriculumService = $this->curriculumService->update($curriculum, $dto);
+        $serializer = $this->curriculumSerializer->update($curriculumService);
+
+        return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Curriculum successfully updated.'], $serializer);
+    }
+
+    #[Route('/{id}', name: '_delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
+    public function delete(Curriculum $curriculum): JsonResponse
+    {
+        if (!$curriculum) {
+            throw new Exception('Curriculum not found.');
+        }
+
+        $this->curriculumService->delete($curriculum);
+        
+        return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Curriculum successfully deleted.']);
     }
 
     private function fetchCollections(int $curriculum, int $locale, ?int $limit = null): array

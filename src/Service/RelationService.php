@@ -7,6 +7,7 @@ use App\Repository\CountryRepository;
 use App\Repository\CurriculumRepository;
 use App\Repository\EducationRepository;
 use App\Repository\ExperienceRepository;
+use App\Repository\LanguageRepository;
 use App\Repository\LinkRepository;
 use App\Repository\PictureRepository;
 use App\Repository\ProjectRepository;
@@ -15,16 +16,40 @@ use App\Repository\SkillRepository;
 use App\Repository\StatusRepository;
 use App\Repository\TagRepository;
 use App\Repository\TechnologyRepository;
+use App\Repository\WorkTypeRepository;
 use LogicException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class RelationService {
+    private $relations = [
+        'company',
+        'country',
+        'curriculum',
+        'location',
+        'project',
+        'school',
+        'status',
+    ];
+
+    private $collections = [
+        'education',
+        'experience',
+        'link',
+        'picture',
+        'project',
+        'skill',
+        'tag',
+        'technology',
+        'expectedCountry'
+    ];
+
     public function __construct(
         private readonly CompanyRepository      $companyRepository,
         private readonly CountryRepository      $countryRepository,
         private readonly CurriculumRepository   $curriculumRepository,
         private readonly EducationRepository    $educationRepository,
         private readonly ExperienceRepository   $experienceRepository,
+        private readonly LanguageRepository     $languageRepository,
         private readonly LinkRepository         $linkRepository,
         private readonly PictureRepository      $pictureRepository,
         private readonly ProjectRepository      $projectRepository,
@@ -32,7 +57,8 @@ class RelationService {
         private readonly SkillRepository        $skillRepository,
         private readonly StatusRepository       $statusRepository,
         private readonly TagRepository          $tagRepository,
-        private readonly TechnologyRepository   $technologyRepository
+        private readonly TechnologyRepository   $technologyRepository,
+        private readonly WorkTypeRepository     $workTypeRepository
     ) {}
 
     public function setCurriculum(object $entity, object $dto): void
@@ -52,16 +78,11 @@ class RelationService {
         }
     }
 
-    public function setRelations(object $entity, object $dto): void
+    public function setRelations(object $entity, object $dto, ?array $relations = null): void
     {
-        $relations = [
-            'company',
-            'country',
-            'curriculum',
-            'project',
-            'school',
-            'status',
-        ];
+        if (!$relations) {
+            $relations = $this->relations;
+        }
 
         foreach ($relations as $key) {
             if (!empty($dto->{$key})) {
@@ -70,22 +91,15 @@ class RelationService {
         }
     }
 
-    public function setCollections(object $entity, object $dto): void 
+    public function setCollections(object $entity, object $dto, ?array $collections = null): void 
     {
-        $collections = [
-            'education',
-            'experience',
-            'link',
-            'picture',
-            'project',
-            'skill',
-            'tag',
-            'technology',
-        ];
+        if (!$collections) {
+            $collections = $this->collections;
+        }
     
         foreach ($collections as $key) {
             if (!empty($dto->{$key})) {
-                $this->validateArrayOfIdsOnCreate($dto->{$key}, $key, $entity);
+                $this->validateArrayOfIds($dto->{$key}, $key, $entity);
             }
         }
     }
@@ -102,24 +116,29 @@ class RelationService {
     private function getRepository(string $key): object 
     {
         return match ($key) {
-            'company'    => $this->companyRepository,
-            'country'    => $this->countryRepository,
-            'curriculum' => $this->curriculumRepository,
-            'education'  => $this->educationRepository,
-            'experience' => $this->experienceRepository,
-            'link'       => $this->linkRepository,
-            'picture'    => $this->pictureRepository,
-            'project'    => $this->projectRepository,
-            'school'     => $this->schoolRepository,
-            'skill'      => $this->skillRepository,
-            'status'     => $this->statusRepository,
-            'tag'        => $this->tagRepository,
-            'technology' => $this->technologyRepository,
-            default      => throw new NotFoundHttpException("Unknown Repository key: $key"),
+            'company'           => $this->companyRepository,
+            'country'           => $this->countryRepository,
+            'curriculum'        => $this->curriculumRepository,
+            'education'         => $this->educationRepository,
+            'expectedCountry'   => $this->countryRepository,
+            'experience'        => $this->experienceRepository,
+            'language'          => $this->languageRepository,
+            'link'              => $this->linkRepository,
+            'location'          => $this->countryRepository,
+            'picture'           => $this->pictureRepository,
+            'project'           => $this->projectRepository,
+            'school'            => $this->schoolRepository,
+            'skill'             => $this->skillRepository,
+            'status'            => $this->statusRepository,
+            'tag'               => $this->tagRepository,
+            'technology'        => $this->technologyRepository,
+            'visaAvailableFor'  => $this->countryRepository,
+            'workType'          => $this->workTypeRepository,
+            default             => throw new NotFoundHttpException("Unknown Repository key: $key"),
         };
     }
 
-    private function validateArrayOfIdsOnCreate(array $ids, string $key, object $entity): void
+    private function validateArrayOfIds(array $ids, string $key, object $entity): void
     {
         $repository = $this->getRepository($key);
         $add = $this->getMethod('add' . ucfirst($key), $entity);

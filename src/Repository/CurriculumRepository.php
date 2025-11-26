@@ -44,37 +44,41 @@ class CurriculumRepository extends ServiceEntityRepository
     public function findAllWithLocale(int $locale): array
     {
         return $this->createQueryBuilder('c')
-        ->select('c', 'i18n')
+        ->select(
+            'DISTINCT c',
+            'i18n', 'locale', 
+            'locale_country', 'locale_country_i18n'
+        )
+        
         ->leftJoin('c.i18n', 'i18n')
         ->leftJoin('i18n.locale', 'locale')
+        ->andWhere('locale.id = :loc')
 
         ->leftJoin('c.location', 'locale_country')
-        ->leftJoin('locale_country.i18n', 'locale_country_i18n', 'WITH', 'EXISTS (
-        SELECT l1.id FROM App\Entity\Locale l1
-        WHERE l1 MEMBER OF locale_country_i18n.locale AND l1.id = :loc
-        )')
-
-        ->andWhere('locale.id = :loc')
+        ->leftJoin('locale_country.i18n', 'locale_country_i18n', 'WITH', 'locale_country_i18n.locale = :loc')
+        
         ->setParameter('loc', $locale)
         ->getQuery()
         ->getResult();
     }
 
-    public function findOneWithLocale(int $curriculum, int $locale, ?int $limit = null): Curriculum
+    public function findOneWithLocale(int $curriculum, int $locale, ?int $limit = null): ?Curriculum
     {
         return $this->createQueryBuilder('c')
-        ->select('c', 'i18n')
+        ->select(
+            'DISTINCT c',
+            'i18n', 'locale', 
+            'locale_country', 'locale_country_i18n'
+        )
+        ->andWhere('c.id = :id')
+        
         ->leftJoin('c.i18n', 'i18n')
         ->leftJoin('i18n.locale', 'locale')
+        ->andWhere('locale.id = :loc')
 
         ->leftJoin('c.location', 'locale_country')
-        ->leftJoin('locale_country.i18n', 'locale_country_i18n', 'WITH', 'EXISTS (
-        SELECT l1.id FROM App\Entity\Locale l1
-        WHERE l1 MEMBER OF locale_country_i18n.locale AND l1.id = :loc
-        )')
+        ->leftJoin('locale_country.i18n', 'locale_country_i18n', 'WITH', 'locale_country_i18n.locale = :loc')
 
-        ->andWhere('c.id = :id')
-        ->andWhere('locale.id = :loc')
         ->setParameter('id', $curriculum)
         ->setParameter('loc', $locale)
         ->getQuery()
