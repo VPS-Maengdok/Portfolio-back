@@ -21,7 +21,7 @@ final class CurriculumSerializer extends Serializer
     public function list(array $curriculums, array $collections): array
     {
         return array_map(function ($curriculum) use ($collections) {
-            return $this->details($curriculum);
+            return $this->details($curriculum, $collections);
         }, $curriculums);
     }
 
