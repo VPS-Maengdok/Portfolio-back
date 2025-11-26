@@ -7,53 +7,31 @@ use App\DTO\TagDTO;
 use App\Entity\Tag;
 use App\Entity\TagI18n;
 use App\Entity\Locale;
-use App\Repository\EducationRepository;
-use App\Repository\ExperienceRepository;
 use App\Repository\TagI18nRepository;
-use App\Repository\TagRepository;
-use App\Repository\LocaleRepository;
-use App\Repository\ProjectRepository;
-use App\Repository\SkillRepository;
-use App\Repository\TechnologyRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class TagService
 {
     public function __construct(
-        private readonly RelationService $relationService,
-        private readonly TagRepository $tagRepository,
-        private readonly TagI18nRepository $tagI18nRepository,
-        private readonly LocaleRepository $localeRepository,
-        private readonly EntityManagerInterface $em,
-        private readonly ProjectRepository $projectRepository,
-        private readonly ExperienceRepository $experienceRepository,
-        private readonly EducationRepository $educationRepository,
-        private readonly SkillRepository $skillRepository,
-        private readonly TechnologyRepository $technologyRepository
+        private readonly RelationService            $relationService,
+        private readonly I18nService                $i18nService,
+        private readonly TagI18nRepository          $tagI18nRepository,
+        private readonly EntityManagerInterface     $em
     ) {}
 
     public function create(TagDTO $dto): Tag
     {
         $hydratedTag = new Tag();
 
-        if ($dto->project) {
-            $this->relationService->validateArrayOfIdsOnCreate($dto->project, 'project', $hydratedTag);
-        }
-
+        $this->relationService->setCollections($hydratedTag, $dto);
         $this->em->persist($hydratedTag);
 
-        foreach ($dto->i18n as $value) {
-            if (!$locale = $this->localeRepository->find($value->locale)) {
-                throw new BadRequestHttpException('Invalid Locale id.');
-            }
-
-            $i18n = $this->hydrateTagI18n(new TagI18n(), $value, $locale);
-            
-            $hydratedTag->addI18n($i18n);
-            $this->em->persist($i18n);
-        }
+        $this->i18nService->setCollectionOnCreate(
+            $hydratedTag,
+            $dto->i18n,
+            fn () => new TagI18n(),
+            fn (TagI18n $i18n, TagI18nDTO $i18nDTO, Locale $locale) => $this->hydrateTagI18n($i18n, $i18nDTO, $locale)
+        );
 
         $this->em->flush();
 
@@ -62,44 +40,17 @@ final class TagService
 
     public function update(Tag $tag, TagDTO $dto): Tag
     {
-        $payloadIds = [];
-        foreach ($dto->i18n as $i18n) {
-            if (isset($i18n->id)) {
-                $payloadIds[] = $i18n->id;
-            }
-        }
-
-        foreach ($tag->getI18n() as $existing) {
-            if (!in_array($existing->getId(), $payloadIds, true)) {
-                $tag->removeI18n($existing);
-            }
-        }
-
-        if ($dto->project) {
-            $this->relationService->validateArrayOfIdsOnUpdate($dto->project, 'project', $tag);
-        }
-
-        foreach ($dto->i18n as $value) {
-            if ($value->locale === null) {
-                throw new BadRequestHttpException('Locale is required.');
-            }
-            
-            if (!$locale = $this->localeRepository->find($value->locale)) {
-                throw new BadRequestHttpException('Invalid Locale id.');
-            }
-
-            if (!isset($value->id)) {
-                $i18n = $this->hydrateTagI18n(new TagI18n(), $value, $locale);
-                $tag->addI18n($i18n);
-            } else {
-                if (!$existing = $this->tagI18nRepository->findOneBy(['id' => $value->id, 'tag' => $tag, 'locale' => $locale])) {
-                    throw new NotFoundHttpException('Tag i18n not found.');
-                }
-
-                $this->hydrateTagI18n($existing, $value, $locale);
-            }
-        }
-
+        $this->i18nService->removeCollectionOnUpdate($tag, $dto->i18n);
+        $this->relationService->setCollections($tag, $dto);
+        $this->i18nService->setCollectionOnUpdate(
+            $tag,
+            $dto->i18n,
+            fn () => new TagI18n(),
+            fn (TagI18n $i18n, TagI18nDTO $i18nDTO, Locale $locale) => $this->hydrateTagI18n($i18n, $i18nDTO, $locale),
+            'tag',
+            $this->tagI18nRepository
+        );
+        
         $this->em->flush();
 
         return $tag;

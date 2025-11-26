@@ -8,82 +8,44 @@ use App\Entity\Country;
 use App\Entity\CountryI18n;
 use App\Entity\Locale;
 use App\Repository\CountryI18nRepository;
-use App\Repository\CountryRepository;
-use App\Repository\LocaleRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CountryService
 {
     public function __construct(
-        private CountryRepository $countryRepository,
-        private CountryI18nRepository $countryI18nRepository,
-        private LocaleRepository $localeRepository,
-        private EntityManagerInterface $em
+        private readonly I18nService                $i18nService,
+        private readonly CountryI18nRepository      $countryI18nRepository,
+        private readonly EntityManagerInterface     $em
     ) {}
 
     public function create(CountryDTO $dto): Country
     {
-        $country = new Country();
-        $this->em->persist($country);
+        $hydratedCountry = new Country();
+        $this->em->persist($hydratedCountry);
 
-        foreach ($dto->i18n as $value) {
-            if (!$locale = $this->localeRepository->find($value->locale)) {
-                throw new BadRequestHttpException('Invalid Locale id.');
-            }
-
-            $i18n = $this->hydrateCountryI18n(new CountryI18n(), $value, $locale);
-
-            $country->addI18n($i18n);
-            $this->em->persist($i18n);
-        }
+        $this->i18nService->setCollectionOnCreate(
+            $hydratedCountry,
+            $dto->i18n,
+            fn () => new CountryI18n(),
+            fn (CountryI18n $i18n, CountryI18nDTO $i18nDTO, Locale $locale) => $this->hydrateCountryI18n($i18n, $i18nDTO, $locale)
+        );
 
         $this->em->flush();
 
-        return $country;
+        return $hydratedCountry;
     }
 
     public function update(Country $country, CountryDTO $dto): Country
     {
-        $payloadIds = [];
-        foreach ($dto->i18n as $i18n) {
-            if (isset($i18n->id)) {
-                $payloadIds[] = $i18n->id;
-            }
-        }
-
-        foreach ($country->getI18n() as $existing) {
-            if (!in_array($existing->getId(), $payloadIds, true)) {
-                $country->removeI18n($existing);
-            }
-        }
-
-        foreach ($dto->i18n as $value) {
-            if ($value->locale === null) {
-                throw new BadRequestHttpException('Locale is required.');
-            }
-            
-            if (!$locale = $this->localeRepository->find($value->locale)) {
-                throw new BadRequestHttpException('Invalid Locale id.');
-            }
-
-            if (!isset($value->id)) {
-                if ($this->countryI18nRepository->findOneBy(['country' => $country, 'locale' => $locale])) {
-                    throw new BadRequestHttpException('This country already has an i18n with this locale.');
-                }
-
-                $i18n = $this->hydrateCountryI18n(new CountryI18n(), $value, $locale);
-
-                $country->addI18n($i18n);
-            } else {
-                if (!$existing = $this->countryI18nRepository->findOneBy(['id' => $value->id, 'country' => $country, 'locale' => $locale])) {
-                    throw new NotFoundHttpException('Country i18n not found.');
-                }
-
-                $this->hydrateCountryI18n($existing, $value, $locale);
-            }
-        }
+        $this->i18nService->removeCollectionOnUpdate($country, $dto->i18n);
+        $this->i18nService->setCollectionOnUpdate(
+            $country,
+            $dto->i18n,
+            fn () => new CountryI18n(),
+            fn (CountryI18n $i18n, CountryI18nDTO $i18nDTO, Locale $locale) => $this->hydrateCountryI18n($i18n, $i18nDTO, $locale),
+            'country',
+            $this->countryI18nRepository
+        );
 
         $this->em->flush();
 

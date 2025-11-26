@@ -13,12 +13,11 @@ use Doctrine\ORM\EntityManagerInterface;
 final class ProjectService
 {
     public function __construct(
-        private readonly RelationService $relationService,
-        private readonly I18nService $i18nService,
-        private readonly ProjectI18nRepository $projectI18nRepository,
-        private readonly EntityManagerInterface $em,
-    ) {
-    }
+        private readonly RelationService            $relationService,
+        private readonly I18nService                $i18nService,
+        private readonly ProjectI18nRepository      $projectI18nRepository,
+        private readonly EntityManagerInterface     $em,
+    ) {}
 
     public function create(ProjectDTO $dto): Project
     {
@@ -33,7 +32,7 @@ final class ProjectService
         $this->i18nService->setCollectionOnCreate(
             $hydratedProject, 
             $dto->i18n, 
-            new ProjectI18n(), 
+            fn () => new ProjectI18n(), 
             fn (ProjectI18n $i18n, ProjectI18nDTO $i18nDTO, Locale $locale) => $this->hydrateProjectI18n($i18n, $i18nDTO, $locale)
         );
 
@@ -51,7 +50,7 @@ final class ProjectService
         $this->i18nService->setCollectionOnUpdate(
             $project,
             $dto->i18n,
-            new ProjectI18n(),
+            fn () => new ProjectI18n(),
             fn (ProjectI18n $i18n, ProjectI18nDTO $i18nDTO, Locale $locale) => $this->hydrateProjectI18n($i18n, $i18nDTO, $locale),
             'project',
             $this->projectI18nRepository

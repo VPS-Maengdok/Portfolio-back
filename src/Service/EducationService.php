@@ -7,81 +7,34 @@ use App\DTO\EducationDTO;
 use App\Entity\Education;
 use App\Entity\EducationI18n;
 use App\Entity\Locale;
-use App\Repository\CurriculumRepository;
 use App\Repository\EducationI18nRepository;
-use App\Repository\EducationRepository;
-use App\Repository\ExperienceRepository;
-use App\Repository\LocaleRepository;
-use App\Repository\ProjectRepository;
-use App\Repository\SchoolRepository;
-use App\Repository\SkillRepository;
-use App\Repository\TechnologyRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class EducationService
 {
     public function __construct(
-        private readonly RelationService $relationService,
-        private readonly EducationI18nRepository $educationI18nRepository,
-        private readonly SchoolRepository $schoolRepository,
-        private readonly CurriculumRepository $curriculumRepository,
-        private readonly LocaleRepository $localeRepository,
-        private readonly EntityManagerInterface $em,
-        private readonly ProjectRepository $projectRepository,
-        private readonly ExperienceRepository $experienceRepository,
-        private readonly EducationRepository $educationRepository,
-        private readonly SkillRepository $skillRepository,
-        private readonly TechnologyRepository $technologyRepository
+        private readonly RelationService            $relationService,
+        private readonly I18nService                $i18nService,
+        private readonly EducationI18nRepository    $educationI18nRepository,
+        private readonly EntityManagerInterface     $em
     ) {}
 
     public function create(EducationDTO $dto): Education
     {
         $hydratedEducation = $this->hydrateEducation(new Education(), $dto);
 
-        if ($dto->curriculum) {
-            if (!$curriculum = $this->curriculumRepository->find($dto->curriculum)) {
-                throw new NotFoundHttpException('Curriculum not found.');
-            }
-
-            $hydratedEducation->setCurriculum($curriculum);
-        } else {
-            if(!$curriculum = $this->curriculumRepository->findOneBy([], ['createdAt' => 'DESC'])) {
-                throw new NotFoundHttpException('Could not find the most recent curriculum, maybe you forgot to create a curriculum.');
-            }
-
-            $hydratedEducation->setCurriculum($curriculum);
-        }
-
-        if ($dto->school) {
-            if (!$school = $this->schoolRepository->find($dto->school)) {
-                throw new NotFoundHttpException('School not found.');
-            }
-
-            $hydratedEducation->setSchool($school);
-        }
-
-        if ($dto->skill) {
-            $this->relationService->validateArrayOfIdsOnCreate($dto->skill, 'skill', $hydratedEducation);
-        }
-
-        if ($dto->technology) {
-            $this->relationService->validateArrayOfIdsOnCreate($dto->technology, 'technology', $hydratedEducation);
-        }
+        $this->relationService->setCurriculum($hydratedEducation, $dto);
+        $this->relationService->setRelations($hydratedEducation, $dto);
+        $this->relationService->setCollections($hydratedEducation, $dto);
 
         $this->em->persist($hydratedEducation);
 
-        foreach ($dto->i18n as $value) {
-            if (!$locale = $this->localeRepository->find($value->locale)) {
-                throw new BadRequestHttpException('Invalid Locale id.');
-            }
-
-            $i18n = $this->hydrateEducationI18n(new EducationI18n(), $value, $locale);
-            
-            $hydratedEducation->addI18n($i18n);
-            $this->em->persist($i18n);
-        }
+        $this->i18nService->setCollectionOnCreate(
+            $hydratedEducation, 
+            $dto->i18n, 
+            fn () => new EducationI18n(), 
+            fn (EducationI18n $i18n, EducationI18nDTO $i18nDTO, Locale $locale) => $this->hydrateEducationI18n($i18n, $i18nDTO, $locale)
+        );
 
         $this->em->flush();
 
@@ -90,75 +43,18 @@ final class EducationService
 
     public function update(Education $education, EducationDTO $dto): Education
     {
-        $payloadIds = [];
-        foreach ($dto->i18n as $i18n) {
-            if (isset($i18n->id)) {
-                $payloadIds[] = $i18n->id;
-            }
-        }
-
-        foreach ($education->getI18n() as $existing) {
-            if (!in_array($existing->getId(), $payloadIds, true)) {
-                $education->removeI18n($existing);
-            }
-        }
-
-        if ($dto->curriculum) {
-            if (!$curriculum = $this->curriculumRepository->find($dto->curriculum)) {
-                throw new NotFoundHttpException('Curriculum not found.');
-            }
-
-            $education->setCurriculum($curriculum);
-        } else {
-            if(!$curriculum = $this->curriculumRepository->findOneBy([], ['createdAt' => 'DESC'])) {
-                throw new NotFoundHttpException('Could not find the most recent curriculum, maybe you forgot to create a curriculum.');
-            }
-
-            $education->setCurriculum($curriculum);
-        }
-
-        if ($dto->school) {
-            if (!$school = $this->schoolRepository->find($dto->school)) {
-                throw new NotFoundHttpException('School not found.');
-            }
-
-            $education->setSchool($school);
-        }
-
-        if ($dto->skill) {
-            $this->relationService->validateArrayOfIdsOnCreate($dto->skill, 'skill', $education);
-        }
-
-        if ($dto->technology) {
-            $this->relationService->validateArrayOfIdsOnCreate($dto->technology, 'technology', $education);
-        }
-
-        foreach ($dto->i18n as $value) {
-            if ($value->locale === null) {
-                throw new BadRequestHttpException('Locale is required.');
-            }
-            
-            if (!$locale = $this->localeRepository->find($value->locale)) {
-                throw new BadRequestHttpException('Invalid Locale id.');
-            }
-
-            if (!isset($value->id)) {
-                if ($this->educationI18nRepository->findOneBy(['education' => $education, 'locale' => $locale])) {
-                    throw new BadRequestHttpException('This education already has an i18n with this locale.');
-                }
-
-                $i18n = $this->hydrateEducationI18n(new EducationI18n(), $value, $locale);
-
-                $education->addI18n($i18n);
-
-            } else {
-                if (!$existing = $this->educationI18nRepository->findOneBy(['id' => $value->id, 'education' => $education])) {
-                    throw new NotFoundHttpException('Education i18n not found.');
-                }
-
-                $this->hydrateEducationI18n($existing, $value, $locale);
-            }
-        }
+        $this->i18nService->removeCollectionOnUpdate($education, $dto->i18n);
+        $this->relationService->setCurriculum($education, $dto);
+        $this->relationService->setRelations($education, $dto);
+        $this->relationService->setCollections($education, $dto);
+        $this->i18nService->setCollectionOnUpdate(
+            $education,
+            $dto->i18n,
+            fn () => new EducationI18n(),
+            fn (EducationI18n $i18n, EducationI18nDTO $i18nDTO, Locale $locale) => $this->hydrateEducationI18n($i18n, $i18nDTO, $locale),
+            'education',
+            $this->educationI18nRepository
+        );
 
         $this->em->flush();
 

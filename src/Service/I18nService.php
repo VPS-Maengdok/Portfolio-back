@@ -11,35 +11,37 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 final class I18nService
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly LocaleRepository $localeRepository
+        private readonly EntityManagerInterface     $em,
+        private readonly LocaleRepository           $localeRepository
     ) {}
 
-    public function setCollectionOnCreate(object $entity, iterable $i18nDTO, object $i18nEntity, callable $hydrator): void
+    public function setCollectionOnCreate(object $entity, iterable $i18nDTO, callable $i18nEntity, callable $hydrator): void
     {
         foreach ($i18nDTO as $dto) {
             $locale = $this->getLocale($dto->locale);
-            $i18n = $hydrator($i18nEntity, $dto, $locale);
-            $entity->addI18n($i18n);
-            $this->em->persist($i18n);
+            $i18n = $i18nEntity();
+            $hydratedI18n = $hydrator($i18n, $dto, $locale);
+            $entity->addI18n($hydratedI18n);
+            $this->em->persist($hydratedI18n);
         }
     }
 
-    public function setCollectionOnUpdate(object $entity, iterable $i18nDTO, object $i18nEntity, callable $hydrator, string $entityName, object $i18nRepository): void
+    public function setCollectionOnUpdate(object $entity, iterable $i18nDTO, callable $i18nEntity, callable $hydrator, string $entityName, object $i18nRepository): void
     {
         foreach ($i18nDTO as $dto) {
             $locale = $this->getLocale($dto->locale);
 
             if (!isset($dto->id)) {
                 $this->assertNoDuplicate($entity, $i18nRepository, $locale, $entityName);
-                $i18n = $hydrator($i18nEntity, $dto, $locale);
-                $entity->addI18n($i18n);
+                $i18n = $i18nEntity();
+                $hydratedI18n = $hydrator($i18n, $dto, $locale);
+                $entity->addI18n($hydratedI18n);
             } else {
                 $existing = $this->getExistingI18n($entity, $dto->id, $i18nRepository, $entityName);
-                $i18n = $hydrator($existing, $dto, $locale);
+                $hydratedI18n = $hydrator($existing, $dto, $locale);
             }
 
-            $this->em->persist($i18n);
+            $this->em->persist($hydratedI18n);
         }
     }
 
@@ -66,7 +68,7 @@ final class I18nService
         }
 
         if (!$locale = $this->localeRepository->find($id)) {
-            throw new NotFoundHttpException('Invalid Locale id.');
+            throw new NotFoundHttpException("Invalid Locale id $id.");
         }
 
         return $locale;
@@ -75,7 +77,7 @@ final class I18nService
     private function assertNoDuplicate(object $entity, object $i18nRepository, Locale $locale, string $entityName): void
     {
         if ($i18nRepository->findOneBy([$entityName => $entity, 'locale' => $locale])) {
-            throw new BadRequestHttpException("This $entityName already has an i18n with this locale.");
+            throw new BadRequestHttpException("This $entityName already has an i18n with the locale {$locale->getShortened()}.");
         }
 
     }
@@ -83,7 +85,7 @@ final class I18nService
     private function getExistingI18n(object $entity, int $id, object $i18nRepository, string $entityName): object
     {
         if (!$existing = $i18nRepository->findOneBy(['id' => $id, $entityName => $entity])) {
-            throw new NotFoundHttpException(ucfirst($entityName) . ' i18n not found.');
+            throw new NotFoundHttpException(ucfirst($entityName) . " i18n with id $id not found.");
         }
 
         return $existing;

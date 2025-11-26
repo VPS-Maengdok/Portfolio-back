@@ -3,28 +3,21 @@
 namespace App\Service;
 
 use App\DTO\SchoolDTO;
-use App\Entity\Country;
 use App\Entity\School;
-use App\Repository\CountryRepository;
-use App\Repository\SchoolRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class SchoolService
 {
     public function __construct(
-        private SchoolRepository $schoolRepository,
-        private CountryRepository $countryRepository,
-        private EntityManagerInterface $em
+        private readonly RelationService            $relationService,
+        private readonly EntityManagerInterface     $em
     ) {}
 
     public function create(SchoolDTO $dto): School
     {
-        if ($dto->country && !$country = $this->countryRepository->find($dto->country)) {
-            throw new BadRequestHttpException('Invalid Country id.');
-        }
+        $hydratedSchool = $this->hydrateSchool(new School(), $dto);
 
-        $hydratedSchool = $this->hydrateSchool(new School(), $dto, $country);
+        $this->relationService->setRelations($hydratedSchool, $dto);
 
         $this->em->persist($hydratedSchool);
         $this->em->flush();
@@ -34,11 +27,9 @@ final class SchoolService
 
     public function update(School $school, SchoolDTO $dto): School
     {
-        if ($dto->country && !$country = $this->countryRepository->find($dto->country)) {
-            throw new BadRequestHttpException('Invalid Country id.');
-        }
+        $this->relationService->setRelations($school, $dto);
 
-        $this->hydrateSchool($school, $dto, $country);
+        $this->hydrateSchool($school, $dto);
         $this->em->flush();
 
         return $school;
@@ -50,12 +41,11 @@ final class SchoolService
         $this->em->flush();
     }
 
-    private function hydrateSchool(School $school, SchoolDTO $dto, Country $country): School
+    private function hydrateSchool(School $school, SchoolDTO $dto): School
     {
         return $school
             ->setLabel($dto->label)
             ->setUrl($dto->url)
-            ->setCity($dto->city)
-            ->setCountry($country);
+            ->setCity($dto->city);
     }
 }

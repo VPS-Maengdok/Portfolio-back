@@ -43,14 +43,12 @@ class ProjectController extends AbstractController
             throw new Exception('Project not found.');
         }
 
-        if ($lang = $localeRequestService->getLocaleFromRequest($request)) {
-            $data = $this->projectRepository->findOneWithLocale($project->getId(), $lang->getId()); 
-            $serializer = $this->projectSerializer->details($data);
-        } else {
-            $data = $this->projectRepository->findOneById($project->getId());
-            $serializer = $this->projectSerializer->details($data, true);
-        }
-
+        $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
+        $data = $isFromForm ?
+            $this->projectRepository->findOneById($project->getId()):
+            $this->projectRepository->findOneWithLocale($project->getId(), $lang->getId());
+        $serializer = $this->projectSerializer->details($data, $isFromForm);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

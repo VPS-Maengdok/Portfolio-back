@@ -4,14 +4,12 @@ namespace App\Service;
 
 use App\DTO\LocaleDTO;
 use App\Entity\Locale;
-use App\Repository\LocaleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class LocaleService
 {
     public function __construct(
-        private LocaleRepository $localeRepository,
-        private EntityManagerInterface $em
+        private readonly EntityManagerInterface $em
     ) {}
 
     public function create(LocaleDTO $dto): Locale

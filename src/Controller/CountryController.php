@@ -45,7 +45,7 @@ class CountryController extends AbstractController
         }
 
         $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
-        $lang = $localeRequestService->getLocaleFromRequest($request, false);
+        $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $isFromForm ? 
             $this->countryRepository->findOneById($country->getId()) :
             $this->countryRepository->findOneWithLocale($country->getId(), $lang->getId());
