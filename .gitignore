@@ -2,6 +2,7 @@
 .env.dev
 .DS_Store
 .editorconfig
+/public/uploads/
 
 ###> symfony/framework-bundle ###
 /.env.local
