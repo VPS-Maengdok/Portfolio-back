@@ -8,20 +8,24 @@ final class StatusSerializer extends Serializer
 {
     public function __construct() {}
 
-    public function list(array $statuses): array
+    public function list(array $statuses, ?int $localeId = null): array
     {
-        return array_map(function ($status) {
-            return $this->details($status);
+        return array_map(function ($status) use ($localeId) {
+            return $this->details($status, false, $localeId);
         }, $statuses);
     }
 
-    public function details(Status $status, ?bool $everyLocale = false): array
+    public function details(
+        Status $status,
+        ?bool $everyLocale = false,
+        ?int $localeId = null,
+    ): array
     {
         return [
             'id' => $status->getId(),
             'i18n' => $everyLocale ?
-                $this->i18nComplete($status->getI18n()->toArray()) : 
-                $this->i18n($status->getI18n()),
+                $this->i18nComplete($status->getI18n()->toArray(), [], $localeId) :
+                $this->i18n($status->getI18n(), [], $localeId),
         ];
     }
 

@@ -8,20 +8,24 @@ final class LanguageSerializer extends Serializer
 {
     public function __construct() {}
 
-    public function list(array $languages): array
+    public function list(array $languages, ?int $localeId = null): array
     {
-        return array_map(function ($language) {
-            return $this->details($language);
+        return array_map(function ($language) use ($localeId) {
+            return $this->details($language, false, $localeId);
         }, $languages);
     }
 
-    public function details(Language $language, ?bool $everyLocale = false): array
+    public function details(
+        Language $language,
+        ?bool $everyLocale = false,
+        ?int $localeId = null,
+    ): array
     {
         return [
             'id' => $language->getId(),
-            'i18n' => $everyLocale ? 
-                $this->i18nComplete($language->getI18n()->toArray(), ['level']) : 
-                $this->i18n($language->getI18n(), ['level']),
+            'i18n' => $everyLocale ?
+                $this->i18nComplete($language->getI18n()->toArray(), ['shortened', 'level'], $localeId) :
+                $this->i18n($language->getI18n(), ['shortened', 'level'], $localeId),
             'curriculum' => $language->getCurriculum()?->getId(),
         ];
     }

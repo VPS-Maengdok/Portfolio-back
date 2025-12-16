@@ -27,10 +27,10 @@ final class LanguageService
 
         $this->em->persist($hydratedLanguage);
         $this->i18nService->setCollectionOnCreate(
-            $hydratedLanguage, 
-            $dto->i18n, 
-            fn () => new LanguageI18n(), 
-            fn (LanguageI18n $i18n, LanguageI18nDTO $i18nDTO, Locale $locale) => $this->hydrateLanguageI18n($i18n, $i18nDTO, $locale)
+            $hydratedLanguage,
+            $dto->i18n,
+            fn() => new LanguageI18n(),
+            fn(LanguageI18n $i18n, LanguageI18nDTO $i18nDTO, Locale $locale) => $this->hydrateLanguageI18n($i18n, $i18nDTO, $locale)
         );
 
         $this->em->flush();
@@ -45,8 +45,8 @@ final class LanguageService
         $this->i18nService->setCollectionOnUpdate(
             $language,
             $dto->i18n,
-            fn () => new LanguageI18n(),
-            fn (LanguageI18n $i18n, LanguageI18nDTO $i18nDTO, Locale $locale) => $this->hydrateLanguageI18n($i18n, $i18nDTO, $locale),
+            fn() => new LanguageI18n(),
+            fn(LanguageI18n $i18n, LanguageI18nDTO $i18nDTO, Locale $locale) => $this->hydrateLanguageI18n($i18n, $i18nDTO, $locale),
             'language',
             $this->languageI18nRepository
         );
@@ -66,6 +66,7 @@ final class LanguageService
     {
         return $i18n
             ->setLabel($dto->label)
+            ->setShortened($dto->shortened)
             ->setLevel($dto->level)
             ->setLocale($locale);
     }

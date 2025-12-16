@@ -18,10 +18,12 @@ use App\Serializer\CurriculumSerializer;
 use App\Service\CurriculumService;
 use App\Service\Shared\ApiResponseService;
 use App\Service\Shared\LocaleRequestService;
+use App\Service\Shared\PdfGenerator;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -54,8 +56,12 @@ class CurriculumController extends AbstractController
         foreach ($data as $cv) {
             $collections[$cv->getId()] = $this->fetchCollections($cv->getId(), $lang->getId());
         }
-    
-        $serializer = $this->curriculumSerializer->list($data, $collections);
+
+        $serializer = $this->curriculumSerializer->list(
+            $data,
+            $collections,
+            $lang->getId(),
+        );
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -69,11 +75,16 @@ class CurriculumController extends AbstractController
 
         $lang = $localeRequestService->getLocaleFromRequest($request);
         $limit = filter_var($request->query->get('limit'), FILTER_VALIDATE_INT) ?: null;
-    
+
         $data = $this->curriculumRepository->findOneWithLocale($curriculum->getId(), $lang->getId());
         $collections = $this->fetchCollections($curriculum->getId(), $lang->getId(), $limit);
 
-        $serializer = $this->curriculumSerializer->details($data, $collections);
+        $serializer = $this->curriculumSerializer->details(
+            $data,
+            $collections,
+            false,
+            $lang->getId(),
+        );
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -81,11 +92,10 @@ class CurriculumController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] CurriculumDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $curriculum = $this->curriculumService->create($dto);
         $serializer = $this->curriculumSerializer->create($curriculum);
 
@@ -95,12 +105,11 @@ class CurriculumController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] CurriculumDTO $dto, 
+        )] CurriculumDTO $dto,
         Curriculum $curriculum
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$curriculum) {
             throw new Exception('Curriculum not found.');
         }
@@ -119,9 +128,51 @@ class CurriculumController extends AbstractController
         }
 
         $this->curriculumService->delete($curriculum);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Curriculum successfully deleted.']);
     }
+
+    #[Route('/first', name: '_first', methods: ['GET'])]
+    public function detailsFirstCurriculum(Request $request,  LocaleRequestService $localeRequestService): JsonResponse
+    {
+        $lang = $localeRequestService->getLocaleFromRequest($request);
+
+        $curriculum = $this->curriculumRepository->findFirstCurriculum($lang->getId());
+        $collections = $this->fetchCollections($curriculum->getId(), $lang->getId());
+        $serializer = $this->curriculumSerializer->details(
+            $curriculum,
+            $collections,
+            false,
+            $lang->getId(),
+        );
+        return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
+    }
+
+    #[Route('/pdf/{id}', name: '_pdf', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function previewPDF(Curriculum $curriculum, Request $request, LocaleRequestService $localeRequestService, PdfGenerator $generator): Response
+    {
+        $disposition = $request->query->get('download') === '1'
+            ? 'attachment'
+            : 'inline';
+        $lang = $localeRequestService->getLocaleFromRequest($request);
+        $limit = filter_var($request->query->get('limit'), FILTER_VALIDATE_INT) ?: null;
+
+        $data = $this->curriculumRepository->findOneWithLocale($curriculum->getId(), $lang->getId());
+        $collections = $this->fetchCollections($curriculum->getId(), $lang->getId(), $limit);
+        $pdf = $generator->generate($data, $collections, $lang->getShortened());
+
+        return new Response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => sprintf(
+                '%s; filename="%s %s resume %s.pdf"',
+                $disposition,
+                $data->getFirstname(),
+                $data->getLastname(),
+                $lang->getShortened()
+            ),
+        ]);
+    }
+
 
     private function fetchCollections(int $curriculum, int $locale, ?int $limit = null): array
     {

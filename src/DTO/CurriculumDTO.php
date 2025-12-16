@@ -16,6 +16,10 @@ final class CurriculumDTO
     public ?string $lastname;
 
     #[Assert\NotBlank(groups: ['create', 'update'])]
+    #[Assert\Length(max: 255)]
+    public ?string $city;
+
+    #[Assert\NotBlank(groups: ['create', 'update'])]
     #[Assert\Boolean]
     public ?bool $isFreelance;
 
@@ -135,7 +139,7 @@ final class CurriculumDTO
     #[Assert\NotBlank(groups: ['create', 'update'])]
     #[Assert\Valid]
     public ?array $i18n = [];
-    
+
     #[Assert\NotBlank(groups: ['create', 'update'])]
     #[Assert\Positive]
     public ?int $location;

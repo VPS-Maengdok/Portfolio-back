@@ -63,16 +63,31 @@ class LinkRepository extends ServiceEntityRepository
     public function findOneWithLocale(int $link, int $locale): Link
     {
         return $this->createQueryBuilder('l')
-        ->select('l')
-        ->andWhere('l.id = :linkId')
-        ->setParameter('linkId', $link)
-        ->leftJoin('l.i18n', 'i18n')
-        ->addSelect('i18n')
-        ->leftJoin('i18n.locale', 'locale')
-        ->addSelect('locale')
-        ->andWhere('locale.id = :localeId')
-        ->setParameter('localeId', $locale)
-        ->getQuery()
-        ->getOneOrNullResult();
+            ->select('l')
+            ->andWhere('l.id = :linkId')
+            ->setParameter('linkId', $link)
+            ->leftJoin('l.i18n', 'i18n')
+            ->addSelect('i18n')
+            ->leftJoin('i18n.locale', 'locale')
+            ->addSelect('locale')
+            ->andWhere('locale.id = :localeId')
+            ->setParameter('localeId', $locale)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findOneByI18nLabel(string $label, int $locale)
+    {
+        return $this->createQueryBuilder('l')
+            ->select('distinct l, i18n, locale')
+            ->leftJoin('l.i18n', 'i18n')
+            ->leftJoin('i18n.locale', 'locale')
+            ->andWhere('i18n.label = :label')
+            ->andWhere('locale.id = :localeId')
+            ->andWhere('l.isProject = false')
+            ->setParameter('label', $label)
+            ->setParameter('localeId', $locale)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

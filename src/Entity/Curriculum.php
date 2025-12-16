@@ -25,6 +25,9 @@ class Curriculum
     #[ORM\Column(length: 255)]
     private ?string $lastname = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $city = null;
+
     #[ORM\Column]
     private ?bool $isFreelance = null;
 
@@ -146,6 +149,18 @@ class Curriculum
     public function setLastname(string $lastname): static
     {
         $this->lastname = $lastname;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(string $city): static
+    {
+        $this->city = $city;
 
         return $this;
     }

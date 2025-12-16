@@ -30,10 +30,10 @@ final class ExperienceService
         $this->em->persist($hydratedExperience);
 
         $this->i18nService->setCollectionOnCreate(
-            $hydratedExperience, 
-            $dto->i18n, 
-            fn () => new ExperienceI18n(), 
-            fn (ExperienceI18n $i18n, ExperienceI18nDTO $i18nDTO, Locale $locale) => $this->hydrateExperienceI18n($i18n, $i18nDTO, $locale)
+            $hydratedExperience,
+            $dto->i18n,
+            fn() => new ExperienceI18n(),
+            fn(ExperienceI18n $i18n, ExperienceI18nDTO $i18nDTO, Locale $locale) => $this->hydrateExperienceI18n($i18n, $i18nDTO, $locale)
         );
 
         $this->em->flush();
@@ -43,6 +43,7 @@ final class ExperienceService
 
     public function update(Experience $experience, ExperienceDTO $dto): Experience
     {
+        $this->hydrateExperience($experience, $dto);
         $this->i18nService->removeCollectionOnUpdate($experience, $dto->i18n);
         $this->relationService->setCurriculum($experience, $dto);
         $this->relationService->setRelations($experience, $dto);
@@ -50,8 +51,8 @@ final class ExperienceService
         $this->i18nService->setCollectionOnUpdate(
             $experience,
             $dto->i18n,
-            fn () => new ExperienceI18n(),
-            fn (ExperienceI18n $i18n, ExperienceI18nDTO $i18nDTO, Locale $locale) => $this->hydrateExperienceI18n($i18n, $i18nDTO, $locale),
+            fn() => new ExperienceI18n(),
+            fn(ExperienceI18n $i18n, ExperienceI18nDTO $i18nDTO, Locale $locale) => $this->hydrateExperienceI18n($i18n, $i18nDTO, $locale),
             'experience',
             $this->experienceI18nRepository
         );

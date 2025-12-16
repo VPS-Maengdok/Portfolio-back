@@ -21,16 +21,20 @@ class Serializer
         return null;
     }
 
-    public function i18n(Collection $i18n, ?array $additionalFields = []): array
-    {        
-        if (!$translation = $this->first18nIteration($i18n)) {
+    public function i18n(
+        Collection $i18n,
+        ?array $additionalFields = [],
+        ?int $localeId = null,
+    ): array
+    {
+        if (!$translation = $this->first18nWithLocale($i18n, $localeId)) {
             return [];
         }
 
         $base = [
             'id' => $translation->getId(),
-            'label' => $translation->getLabel(), 
-            'locale' => $translation->getLocale()->getId(),  
+            'label' => $translation->getLabel(),
+            'locale' => $translation->getLocale()->getId(),
         ];
 
         if (!$additionalFields) {
@@ -41,22 +45,33 @@ class Serializer
         return array_merge($base, $additionalRows);
     }
 
-    public function i18nComplete(array $i18n, ?array $additionalFields = []): array
+    public function i18nComplete(
+        array $i18n,
+        ?array $additionalFields = [],
+        ?int $localeId = null,
+    ): array
     {
+        $filtered = $localeId
+            ? array_filter(
+                $i18n,
+                fn($locale) => $locale->getLocale()->getId() === $localeId,
+              )
+            : $i18n;
+
         $result = array_values(array_map(function ($locale) use ($additionalFields) {
             $base = [
                 'id' => $locale->getId(),
                 'label' => $locale->getLabel(),
-                'locale' => $locale->getLocale()->getId(),  
+                'locale' => $locale->getLocale()->getId(),
             ];
 
             if (!$additionalFields) {
                 return $base;
             }
-    
+
             $additionalRows = $this->additionalMethod($additionalFields, $locale);
             return array_merge($base, $additionalRows);
-        }, $i18n));
+        }, $filtered));
 
         array_multisort(array_column($result, 'id'), SORT_ASC, $result);
 
@@ -81,5 +96,20 @@ class Serializer
         }
 
         return $result;
+    }
+
+    private function first18nWithLocale(Collection $i18n, ?int $localeId): ?object
+    {
+        if (!$i18n || $localeId === null) {
+            return $this->first18nIteration($i18n);
+        }
+
+        foreach ($i18n as $translation) {
+            if ($translation->getLocale()->getId() === $localeId) {
+                return $translation;
+            }
+        }
+
+        return $this->first18nIteration($i18n);
     }
 }

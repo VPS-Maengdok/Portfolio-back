@@ -94,53 +94,54 @@ final class Version20251109004110 extends AbstractMigration
 
         // Technologies
         $this->addSql("INSERT INTO technology (id, icon, label, datetime_immutable) VALUES
-        (1,'icon-php',                      'PHP',                      NOW()),
-        (2,'icon-javascript',               'JavaScript',               NOW()),
-        (3,'icon-python',                   'Python',                   NOW()),
-        (4,'icon-java',                     'Java',                     NOW()),
-        (5,'icon-csharp',                   'C#',                       NOW()),
-        (6,'icon-cplusplus',                'C++',                      NOW()),
-        (7,'icon-c',                        'C',                        NOW()),
-        (8,'icon-ruby',                     'Ruby',                     NOW()),
-        (9,'icon-go',                       'Go',                       NOW()),
-        (10,'icon-symfony',                 'Symfony',                  NOW()),
-        (11,'icon-laravel',                 'Laravel',                  NOW()),
-        (12,'icon-react',                   'React',                    NOW()),
-        (13,'icon-vuejs',                   'Vue.js',                   NOW()),
-        (14,'icon-angular',                 'Angular',                  NOW()),
-        (15,'icon-nodejs',                  'Node.js',                  NOW()),
-        (16,'icon-express',                 'Express',                  NOW()),
-        (17,'icon-mongodb',                 'MongoDB',                  NOW()),
-        (18,'icon-mysql',                   'MySQL',                    NOW()),
-        (19,'icon-postgresql',              'PostgreSQL',               NOW()),
-        (20,'icon-sqlite',                  'SQLite',                   NOW()),
-        (21,'icon-oracle',                  'Oracle',                   NOW()),
-        (22,'icon-microsoft-sql-server',    'Microsoft SQL Server',     NOW()),
-        (23,'icon-docker',                  'Docker',                   NOW()),
-        (24,'icon-kubernetes',              'Kubernetes',               NOW()),
-        (25,'icon-git',                     'Git',                      NOW()),
-        (26,'icon-github',                  'GitHub',                   NOW()),
-        (27,'icon-gitlab',                  'GitLab',                   NOW()),
-        (28,'icon-bitbucket',               'Bitbucket',                NOW()),
-        (29,'icon-jira',                    'Jira',                     NOW()),
-        (30,'icon-trello',                  'Trello',                   NOW()),
-        (31,'icon-asana',                   'Asana',                    NOW()),
-        (32,'icon-typescript',              'Typescript',               NOW()),
-        (33,'icon-nextjs',                  'Next.js',                  NOW()),
-        (34,'icon-nuxtjs',                  'Nuxt.js',                  NOW()),
-        (35,'icon-tailwindcss',             'Tailwind CSS',             NOW()),
-        (36,'icon-bootstrap',               'Bootstrap',                NOW()),
-        (37,'icon-materialui',              'Material UI',              NOW()),
-        (38,'icon-antdesign',               'Ant Design',               NOW()),
-        (39,'icon-chakraui',                'Chakra UI',                NOW()),
-        (40,'icon-styledcomponents',        'Styled Components',        NOW()),
-        (41,'icon-redux',                   'Redux',                    NOW()),
-        (42,'icon-reactnative',             'React Native',             NOW()),
-        (43,'icon-flutter',                 'Flutter',                  NOW()),
-        (44,'icon-swift',                   'Swift',                    NOW()),
-        (45,'icon-kotlin',                  'Kotlin',                   NOW()),
-        (46,'icon-objectivec',              'Objective-C',              NOW()),
-        (47,'icon-php',                     'Zend Framework',           NOW())
+        (1,'PhpIcon',                      'PHP',                      NOW()),
+        (2,'JavascriptIcon',               'JavaScript',               NOW()),
+        (3,'PythonIcon',                   'Python',                   NOW()),
+        (4,'JavaIcon',                     'Java',                     NOW()),
+        (5,'CsharpIcon',                   'C#',                       NOW()),
+        (6,'CplusplusIcon',                'C++',                      NOW()),
+        (7,'CIcon',                        'C',                        NOW()),
+        (8,'RubyIcon',                     'Ruby',                     NOW()),
+        (9,'GoIcon',                       'Go',                       NOW()),
+        (10,'SymfonyIcon',                 'Symfony',                  NOW()),
+        (11,'LaravelIcon',                 'Laravel',                  NOW()),
+        (12,'ReactIcon',                   'React',                    NOW()),
+        (13,'VuejsIcon',                   'Vue.js',                   NOW()),
+        (14,'AngularIcon',                 'Angular',                  NOW()),
+        (15,'NodejsIcon',                  'Node.js',                  NOW()),
+        (16,'ExpressIcon',                 'Express',                  NOW()),
+        (17,'MongodbIcon',                 'MongoDB',                  NOW()),
+        (18,'MysqlIcon',                   'MySQL',                    NOW()),
+        (19,'PostgresqlIcon',              'PostgreSQL',               NOW()),
+        (20,'SqliteIcon',                  'SQLite',                   NOW()),
+        (21,'OracleIcon',                  'Oracle',                   NOW()),
+        (22,'Microsoft-sql-serverIcon',    'Microsoft SQL Server',     NOW()),
+        (23,'DockerIcon',                  'Docker',                   NOW()),
+        (24,'KubernetesIcon',              'Kubernetes',               NOW()),
+        (25,'GitIcon',                     'Git',                      NOW()),
+        (26,'GithubIcon',                  'GitHub',                   NOW()),
+        (27,'GitlabIcon',                  'GitLab',                   NOW()),
+        (28,'BitbucketIcon',               'Bitbucket',                NOW()),
+        (29,'JiraIcon',                    'Jira',                     NOW()),
+        (30,'TrelloIcon',                  'Trello',                   NOW()),
+        (31,'AsanaIcon',                   'Asana',                    NOW()),
+        (32,'TypescriptIcon',              'Typescript',               NOW()),
+        (33,'NextjsIcon',                  'Next.js',                  NOW()),
+        (34,'NuxtjsIcon',                  'Nuxt.js',                  NOW()),
+        (35,'TailwindcssIcon',             'Tailwind CSS',             NOW()),
+        (36,'BootstrapIcon',               'Bootstrap',                NOW()),
+        (37,'MaterialuiIcon',              'Material UI',              NOW()),
+        (38,'AntdesignIcon',               'Ant Design',               NOW()),
+        (39,'ChakrauiIcon',                'Chakra UI',                NOW()),
+        (40,'StyledcomponentsIcon',        'Styled Components',        NOW()),
+        (41,'ReduxIcon',                   'Redux',                    NOW()),
+        (42,'ReactnativeIcon',             'React Native',             NOW()),
+        (43,'FlutterIcon',                 'Flutter',                  NOW()),
+        (44,'SwiftIcon',                   'Swift',                    NOW()),
+        (45,'KotlinIcon',                  'Kotlin',                   NOW()),
+        (46,'ObjectivecIcon',              'Objective-C',              NOW()),
+        (47,'PhpIcon',                     'Zend Framework',           NOW()),
+        (48,'DjangoIcon',                  'Django',                   NOW())
         ON CONFLICT DO NOTHING");
 
         // Skills
@@ -217,12 +218,12 @@ final class Version20251109004110 extends AbstractMigration
         ON CONFLICT DO NOTHING");
 
         // Countries
-        $this->addSql("INSERT INTO country (id, datetime_immutable) VALUES
-        (1,NOW()),(2,NOW()),(3,NOW()),(4,NOW()),(5,NOW()),
-        (6,NOW()),(7,NOW()),(8,NOW()),(9,NOW()),(10,NOW()),
-        (11,NOW()),(12,NOW()),(13,NOW()),(14,NOW()),(15,NOW()),
-        (16,NOW()),(17,NOW()),(18,NOW()),(19,NOW()),(20,NOW()),
-        (21,NOW())
+        $this->addSql("INSERT INTO country (id, shortened, datetime_immutable) VALUES
+        (1, 'fr', NOW()),(2, 'ko', NOW()),(3, 'jp', NOW()),(4, 'vn', NOW()),(5, 'cn', NOW()),
+        (6, 'tw', NOW()),(7, 'sg', NOW()),(8, 'fr', NOW()),(9, 'ko', NOW()),(10, 'jp', NOW()),
+        (11, 'vn', NOW()),(12, 'cn', NOW()),(13, 'tw', NOW()),(14, 'sg', NOW()),(15, 'fr', NOW()),
+        (16, 'ko', NOW()),(17, 'jp', NOW()),(18, 'vn', NOW()),(19, 'cn', NOW()),(20, 'tw', NOW()),
+        (21, 'sg', NOW())
         ON CONFLICT DO NOTHING");
         $this->addSql("INSERT INTO country_i18n (id, country_id, label, locale_id, datetime_immutable) VALUES
         -- fr
@@ -251,22 +252,24 @@ final class Version20251109004110 extends AbstractMigration
         (21,7, '싱가포르',       3, NOW())
         ON CONFLICT DO NOTHING");
 
-        foreach ([
-            'locale',
-            'status',
-            'tag',
-            'technology',
-            'skill',
-            'work_type',
-            'language',
-            'country',
-            'status_i18n',
-            'tag_i18n',
-            'skill_i18n',
-            'work_type_i18n',
-            'language_i18n',
-            'country_i18n',
-        ] as $table) {
+        foreach (
+            [
+                'locale',
+                'status',
+                'tag',
+                'technology',
+                'skill',
+                'work_type',
+                'language',
+                'country',
+                'status_i18n',
+                'tag_i18n',
+                'skill_i18n',
+                'work_type_i18n',
+                'language_i18n',
+                'country_i18n',
+            ] as $table
+        ) {
             $this->addSql("
                 SELECT setval(
                     pg_get_serial_sequence('{$table}', 'id'),

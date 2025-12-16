@@ -12,20 +12,24 @@ final class EducationSerializer extends Serializer
         private readonly TechnologySerializer $technologySerializer
     ) {}
 
-    public function list(array $educations): array
+    public function list(array $educations, ?int $localeId = null): array
     {
-        return array_map(function ($education) {
-            return $this->details($education);
+        return array_map(function ($education) use ($localeId) {
+            return $this->details($education, false, $localeId);
         }, $educations);
     }
 
-    public function details(Education $education, ?bool $everyLocale = false): array
+    public function details(
+        Education $education,
+        ?bool $everyLocale = false,
+        ?int $localeId = null,
+    ): array
     {
         return [
             'id' => $education->getId(),
             'i18n' => $everyLocale ?
-                $this->i18nComplete($education->getI18n()->toArray(), ['diploma', 'slug']) :
-                $this->i18n($education->getI18n(), ['diploma', 'slug']),
+                $this->i18nComplete($education->getI18n()->toArray(), ['diploma', 'slug'], $localeId) :
+                $this->i18n($education->getI18n(), ['diploma', 'slug'], $localeId),
             'school' => $education->getSchool() ? $this->schoolSerializer->details($education->getSchool()) : null,
             'skill' => $education->getSkill() ? $this->skillSerializer->list($education->getSkill()->toArray()) : [],
             'technology' => $education->getTechnology() ? $this->technologySerializer->list($education->getTechnology()->toArray()) : [],

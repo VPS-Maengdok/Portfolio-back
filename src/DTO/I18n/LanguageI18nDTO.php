@@ -15,6 +15,10 @@ final class LanguageI18nDTO
 
     #[Assert\NotBlank(groups: ['create', 'update'])]
     #[Assert\Length(max: 255)]
+    public ?string $shortened;
+
+    #[Assert\NotBlank(groups: ['create', 'update'])]
+    #[Assert\Length(max: 255)]
     public ?string $level;
 
     #[Assert\NotBlank]

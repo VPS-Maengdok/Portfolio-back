@@ -45,10 +45,10 @@ final class CurriculumService
         $this->em->persist($hydratedCurriculum);
 
         $this->i18nService->setCollectionOnCreate(
-            $hydratedCurriculum, 
-            $dto->i18n, 
-            fn () => new CurriculumI18n(), 
-            fn (CurriculumI18n $i18n, CurriculumI18nDTO $i18nDTO, Locale $locale) => $this->hydrateCurriculumI18n($i18n, $i18nDTO, $locale)
+            $hydratedCurriculum,
+            $dto->i18n,
+            fn() => new CurriculumI18n(),
+            fn(CurriculumI18n $i18n, CurriculumI18nDTO $i18nDTO, Locale $locale) => $this->hydrateCurriculumI18n($i18n, $i18nDTO, $locale)
         );
 
         $this->em->flush();
@@ -58,14 +58,15 @@ final class CurriculumService
 
     public function update(Curriculum $curriculum, CurriculumDTO $dto): Curriculum
     {
+        $this->hydrateCurriculum($curriculum, $dto);
         $this->i18nService->removeCollectionOnUpdate($curriculum, $dto->i18n);
         $this->relationService->setRelations($curriculum, $dto, $this->relations);
         $this->relationService->setCollections($curriculum, $dto, $this->collections);
         $this->i18nService->setCollectionOnUpdate(
             $curriculum,
             $dto->i18n,
-            fn () => new CurriculumI18n(),
-            fn (CurriculumI18n $i18n, CurriculumI18nDTO $i18nDTO, Locale $locale) => $this->hydrateCurriculumI18n($i18n, $i18nDTO, $locale),
+            fn() => new CurriculumI18n(),
+            fn(CurriculumI18n $i18n, CurriculumI18nDTO $i18nDTO, Locale $locale) => $this->hydrateCurriculumI18n($i18n, $i18nDTO, $locale),
             'curriculum',
             $this->curriculumI18nRepository
         );
@@ -86,6 +87,7 @@ final class CurriculumService
         return $curriculum
             ->setFirstname($dto->firstname)
             ->setLastname($dto->lastname)
+            ->setCity($dto->city)
             ->setIsFreelance($dto->isFreelance)
             ->setFreelanceCompanyName($dto->freelanceCompanyName)
             ->setIsAvailable($dto->isAvailable)
