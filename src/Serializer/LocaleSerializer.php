@@ -18,6 +18,7 @@ final class LocaleSerializer
         return [
             'id' => $locale->getId(),
             'label' => $locale->getLabel(),
+            'shortened' => $locale->getShortened(),
         ];
     }
 

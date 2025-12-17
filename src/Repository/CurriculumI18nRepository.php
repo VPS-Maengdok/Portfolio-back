@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\CurriculumI18n;
+use App\Entity\Locale;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

@@ -10,8 +10,7 @@ class ApiResponseService
 {
     public array $defaultStatus = ['result' => 'success', 'msg' => ''];
 
-    public function __construct(private readonly RequestStack $request)
-    {}
+    public function __construct(private readonly RequestStack $request) {}
 
     public function getApiResponse(int $code, ?array $status = [], ?array $data = []): JsonResponse
     {

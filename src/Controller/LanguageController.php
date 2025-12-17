@@ -31,7 +31,7 @@ class LanguageController extends AbstractController
     {
         $lang = $localeRepository->getLocaleFromRequest($request);
         $data = $languageRepository->findAllWithLocale($lang->getId());
-        $serializer = $this->languageSerializer->list($data);
+        $serializer = $this->languageSerializer->list($data, $lang->getId());
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -48,7 +48,12 @@ class LanguageController extends AbstractController
         $data = $isFromForm ? 
         $this->languageRepository->findOneById($language->getId()) :
         $this->languageRepository->findOneWithLocale($language->getId(), $lang->getId());
-        $serializer = $this->languageSerializer->details($data, $isFromForm);
+        $serializer = $this->languageSerializer->details(
+            $data,
+            $isFromForm,
+            null,
+            $isFromForm ? null : $lang->getId(),
+        );
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

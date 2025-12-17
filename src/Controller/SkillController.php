@@ -31,7 +31,7 @@ class SkillController extends AbstractController
     {
         $lang = $localeRepository->getLocaleFromRequest($request);
         $data = $this->skillRepository->findAllWithLocale($lang->getId());
-        $serializer = $this->skillSerializer->list($data);
+        $serializer = $this->skillSerializer->list($data, $lang->getId());
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -48,7 +48,12 @@ class SkillController extends AbstractController
         $data = $isFromForm ?
             $this->skillRepository->findOneById($skill->getId()) :
             $this->skillRepository->findOneWithLocale($skill->getId(), $lang->getId());
-        $serializer = $this->skillSerializer->details($data, $isFromForm);
+        $serializer = $this->skillSerializer->details(
+            $data,
+            $isFromForm,
+            null,
+            $isFromForm ? null : $lang->getId(),
+        );
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

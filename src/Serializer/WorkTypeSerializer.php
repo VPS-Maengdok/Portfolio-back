@@ -6,20 +6,24 @@ use App\Entity\WorkType;
 
 final class WorkTypeSerializer extends Serializer
 {
-    public function list(array $workTypes): array
+    public function list(array $workTypes, ?int $localeId = null): array
     {
-        return array_map(function ($workType) {
-            return $this->details($workType);
+        return array_map(function ($workType) use ($localeId) {
+            return $this->details($workType, false, $localeId);
         }, $workTypes);
     }
 
-    public function details(WorkType $workType, ?bool $everyLocale = false): array
+    public function details(
+        WorkType $workType,
+        ?bool $everyLocale = false,
+        ?int $localeId = null,
+    ): array
     {
         return [
             'id' => $workType->getId(),
             'i18n' => $everyLocale ?
-                $this->i18nComplete($workType->getI18n()->toArray()) :
-                $this->i18n($workType->getI18n()),
+                $this->i18nComplete($workType->getI18n()->toArray(), [], $localeId) :
+                $this->i18n($workType->getI18n(), [], $localeId),
             'curriculum' => $workType->getCurriculum()?->getId(),
         ];
     }

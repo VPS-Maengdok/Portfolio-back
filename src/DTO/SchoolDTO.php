@@ -18,6 +18,7 @@ final class SchoolDTO
     #[Assert\Length(max: 255)]
     public ?string $city;
 
+    #[Assert\NotBlank(groups: ['create', 'update'])]
     #[Assert\Positive]
     public ?int $country;
 }

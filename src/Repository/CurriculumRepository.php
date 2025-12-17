@@ -44,44 +44,62 @@ class CurriculumRepository extends ServiceEntityRepository
     public function findAllWithLocale(int $locale): array
     {
         return $this->createQueryBuilder('c')
-        ->select(
-            'DISTINCT c',
-            'i18n', 'locale', 
-            'locale_country', 'locale_country_i18n'
-        )
-        
-        ->leftJoin('c.i18n', 'i18n')
-        ->leftJoin('i18n.locale', 'locale')
-        ->andWhere('locale.id = :loc')
+            ->select(
+                'DISTINCT c',
+                'i18n',
+                'locale',
+                'locale_country',
+                'locale_country_i18n'
+            )
 
-        ->leftJoin('c.location', 'locale_country')
-        ->leftJoin('locale_country.i18n', 'locale_country_i18n', 'WITH', 'locale_country_i18n.locale = :loc')
-        
-        ->setParameter('loc', $locale)
-        ->getQuery()
-        ->getResult();
+            ->leftJoin('c.i18n', 'i18n')
+            ->leftJoin('i18n.locale', 'locale')
+            ->andWhere('locale.id = :loc')
+
+            ->leftJoin('c.location', 'locale_country')
+            ->leftJoin('locale_country.i18n', 'locale_country_i18n', 'WITH', 'locale_country_i18n.locale = :loc')
+
+            ->setParameter('loc', $locale)
+            ->getQuery()
+            ->getResult();
     }
 
     public function findOneWithLocale(int $curriculum, int $locale, ?int $limit = null): ?Curriculum
     {
         return $this->createQueryBuilder('c')
-        ->select(
-            'DISTINCT c',
-            'i18n', 'locale', 
-            'locale_country', 'locale_country_i18n'
-        )
-        ->andWhere('c.id = :id')
-        
-        ->leftJoin('c.i18n', 'i18n')
-        ->leftJoin('i18n.locale', 'locale')
-        ->andWhere('locale.id = :loc')
+            ->select(
+                'DISTINCT c',
+                'i18n',
+                'locale',
+                'locale_country',
+                'locale_country_i18n'
+            )
+            ->andWhere('c.id = :id')
 
-        ->leftJoin('c.location', 'locale_country')
-        ->leftJoin('locale_country.i18n', 'locale_country_i18n', 'WITH', 'locale_country_i18n.locale = :loc')
+            ->leftJoin('c.i18n', 'i18n')
+            ->leftJoin('i18n.locale', 'locale')
+            ->andWhere('locale.id = :loc')
 
-        ->setParameter('id', $curriculum)
-        ->setParameter('loc', $locale)
-        ->getQuery()
-        ->getOneOrNullResult();
+            ->leftJoin('c.location', 'locale_country')
+            ->leftJoin('locale_country.i18n', 'locale_country_i18n', 'WITH', 'locale_country_i18n.locale = :loc')
+
+            ->setParameter('id', $curriculum)
+            ->setParameter('loc', $locale)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findFirstCurriculum(int $locale): ?Curriculum
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c', 'i18n', 'locale')
+            ->leftJoin('c.i18n', 'i18n')
+            ->leftJoin('i18n.locale', 'locale')
+            ->andWhere('locale.id = :localeId')
+            ->setParameter('localeId', $locale)
+            ->orderBy('c.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

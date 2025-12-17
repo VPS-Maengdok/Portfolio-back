@@ -24,7 +24,7 @@ class LinkController extends AbstractController
         private readonly LinkRepository $linkRepository,
         private readonly LinkService $linkService,
         private readonly LinkSerializer $linkSerializer
-    ){}
+    ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRepository): JsonResponse
@@ -45,8 +45,8 @@ class LinkController extends AbstractController
 
         $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $isFromForm ? 
-            $this->linkRepository->findOneById($link->getId()) : 
+        $data = $isFromForm ?
+            $this->linkRepository->findOneById($link->getId()) :
             $this->linkRepository->findOneWithLocale($link->getId(), $lang->getId());
         $serializer = $this->linkSerializer->details($data, $isFromForm);
 
@@ -56,11 +56,10 @@ class LinkController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] LinkDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $link = $this->linkService->create($dto);
         $serializer = $this->linkSerializer->create($link);
 
@@ -70,12 +69,11 @@ class LinkController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] LinkDTO $dto, 
+        )] LinkDTO $dto,
         Link $link
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$link) {
             throw new Exception('Link not found.');
         }
@@ -94,7 +92,18 @@ class LinkController extends AbstractController
         }
 
         $this->linkService->delete($link);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Link successfully deleted.']);
+    }
+
+    #[Route('/search', name: '_details', methods: ['GET'])]
+    public function linkByLabel(Request $request, LocaleRequestService $localeRepository): JsonResponse
+    {
+        $lang = $localeRepository->getLocaleFromRequest($request);
+        $query = $request->query->get('label');
+        $data = $this->linkRepository->findOneByI18nLabel($query, $lang->getId());
+        $serializer = $this->linkSerializer->details($data);
+
+        return $this->apiResponse->getApiResponse(200, data: $serializer);
     }
 }

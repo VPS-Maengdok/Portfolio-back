@@ -28,7 +28,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
         return new JsonResponse([
             'token' => $accessToken->getToken(),
-            'expires_at' => $accessToken->getExpiresAt()->format(DATE_ATOM),
+            'expiresAt' => $accessToken->getExpiresAt()->format(DATE_ATOM),
         ]);
     }
 }

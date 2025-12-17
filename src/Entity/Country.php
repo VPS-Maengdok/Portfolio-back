@@ -19,6 +19,9 @@ class Country
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $shortened = null;
+
     /**
      * @var Collection<int, CountryI18n>
      */
@@ -53,6 +56,18 @@ class Country
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getShortened(): ?string
+    {
+        return $this->shortened;
+    }
+
+    public function setShortened(string $shortened): static
+    {
+        $this->shortened = $shortened;
+
+        return $this;
     }
 
     /**

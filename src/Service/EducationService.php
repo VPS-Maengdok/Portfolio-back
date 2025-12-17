@@ -30,10 +30,10 @@ final class EducationService
         $this->em->persist($hydratedEducation);
 
         $this->i18nService->setCollectionOnCreate(
-            $hydratedEducation, 
-            $dto->i18n, 
-            fn () => new EducationI18n(), 
-            fn (EducationI18n $i18n, EducationI18nDTO $i18nDTO, Locale $locale) => $this->hydrateEducationI18n($i18n, $i18nDTO, $locale)
+            $hydratedEducation,
+            $dto->i18n,
+            fn() => new EducationI18n(),
+            fn(EducationI18n $i18n, EducationI18nDTO $i18nDTO, Locale $locale) => $this->hydrateEducationI18n($i18n, $i18nDTO, $locale)
         );
 
         $this->em->flush();
@@ -43,6 +43,7 @@ final class EducationService
 
     public function update(Education $education, EducationDTO $dto): Education
     {
+        $this->hydrateEducation($education, $dto);
         $this->i18nService->removeCollectionOnUpdate($education, $dto->i18n);
         $this->relationService->setCurriculum($education, $dto);
         $this->relationService->setRelations($education, $dto);
@@ -50,8 +51,8 @@ final class EducationService
         $this->i18nService->setCollectionOnUpdate(
             $education,
             $dto->i18n,
-            fn () => new EducationI18n(),
-            fn (EducationI18n $i18n, EducationI18nDTO $i18nDTO, Locale $locale) => $this->hydrateEducationI18n($i18n, $i18nDTO, $locale),
+            fn() => new EducationI18n(),
+            fn(EducationI18n $i18n, EducationI18nDTO $i18nDTO, Locale $locale) => $this->hydrateEducationI18n($i18n, $i18nDTO, $locale),
             'education',
             $this->educationI18nRepository
         );

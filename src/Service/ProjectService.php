@@ -30,10 +30,10 @@ final class ProjectService
         $this->em->persist($hydratedProject);
 
         $this->i18nService->setCollectionOnCreate(
-            $hydratedProject, 
-            $dto->i18n, 
-            fn () => new ProjectI18n(), 
-            fn (ProjectI18n $i18n, ProjectI18nDTO $i18nDTO, Locale $locale) => $this->hydrateProjectI18n($i18n, $i18nDTO, $locale)
+            $hydratedProject,
+            $dto->i18n,
+            fn() => new ProjectI18n(),
+            fn(ProjectI18n $i18n, ProjectI18nDTO $i18nDTO, Locale $locale) => $this->hydrateProjectI18n($i18n, $i18nDTO, $locale)
         );
 
         $this->em->flush();
@@ -43,6 +43,7 @@ final class ProjectService
 
     public function update(Project $project, ProjectDTO $dto): Project
     {
+        $this->hydrateProject($project, $dto);
         $this->i18nService->removeCollectionOnUpdate($project, $dto->i18n);
         $this->relationService->setCurriculum($project, $dto);
         $this->relationService->setRelations($project, $dto);
@@ -50,8 +51,8 @@ final class ProjectService
         $this->i18nService->setCollectionOnUpdate(
             $project,
             $dto->i18n,
-            fn () => new ProjectI18n(),
-            fn (ProjectI18n $i18n, ProjectI18nDTO $i18nDTO, Locale $locale) => $this->hydrateProjectI18n($i18n, $i18nDTO, $locale),
+            fn() => new ProjectI18n(),
+            fn(ProjectI18n $i18n, ProjectI18nDTO $i18nDTO, Locale $locale) => $this->hydrateProjectI18n($i18n, $i18nDTO, $locale),
             'project',
             $this->projectI18nRepository
         );

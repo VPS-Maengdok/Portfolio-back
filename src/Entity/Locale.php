@@ -123,7 +123,7 @@ class Locale
     public function removeTagI18n(tagI18n $tagI18n): static
     {
         if ($this->tagI18n->removeElement($tagI18n)) {
-            if ($tagI18n->getLocaleFromRequest() === $this) {
+            if ($tagI18n->getLocale() === $this) {
                 $tagI18n->setLocale(null);
             }
         }
@@ -150,7 +150,7 @@ class Locale
     public function removeStatusI18n(StatusI18n $statusI18n): static
     {
         if ($this->statusI18n->removeElement($statusI18n)) {
-            if ($statusI18n->getLocaleFromRequest() === $this) {
+            if ($statusI18n->getLocale() === $this) {
                 $statusI18n->setLocale(null);
             }
         }
@@ -177,7 +177,7 @@ class Locale
     public function removeSkillI18n(SkillI18n $skillI18n): static
     {
         if ($this->skillI18n->removeElement($skillI18n)) {
-            if ($skillI18n->getLocaleFromRequest() === $this) {
+            if ($skillI18n->getLocale() === $this) {
                 $skillI18n->setLocale(null);
             }
         }
@@ -204,7 +204,7 @@ class Locale
     public function removeWorkTypeI18n(WorkTypeI18n $workTypeI18n): static
     {
         if ($this->workTypeI18n->removeElement($workTypeI18n)) {
-            if ($workTypeI18n->getLocaleFromRequest() === $this) {
+            if ($workTypeI18n->getLocale() === $this) {
                 $workTypeI18n->setLocale(null);
             }
         }
@@ -231,7 +231,7 @@ class Locale
     public function removeCountryI18n(CountryI18n $countryI18n): static
     {
         if ($this->countryI18n->removeElement($countryI18n)) {
-            if ($countryI18n->getLocaleFromRequest() === $this) {
+            if ($countryI18n->getLocale() === $this) {
                 $countryI18n->setLocale(null);
             }
         }
@@ -258,7 +258,7 @@ class Locale
     public function removelinkI18n(LinkI18n $linkI18n): static
     {
         if ($this->linkI18n->removeElement($linkI18n)) {
-            if ($linkI18n->getLocaleFromRequest() === $this) {
+            if ($linkI18n->getLocale() === $this) {
                 $linkI18n->setLocale(null);
             }
         }
@@ -285,7 +285,7 @@ class Locale
     public function removeCurriculumI18n(CurriculumI18n $curriculumI18n): static
     {
         if ($this->curriculumI18n->removeElement($curriculumI18n)) {
-            if ($curriculumI18n->getLocaleFromRequest() === $this) {
+            if ($curriculumI18n->getLocale() === $this) {
                 $curriculumI18n->setLocale(null);
             }
         }
@@ -312,7 +312,7 @@ class Locale
     public function removeLanguageI18n(LanguageI18n $languageI18n): static
     {
         if ($this->languageI18n->removeElement($languageI18n)) {
-            if ($languageI18n->getLocaleFromRequest() === $this) {
+            if ($languageI18n->getLocale() === $this) {
                 $languageI18n->setLocale(null);
             }
         }
@@ -339,7 +339,7 @@ class Locale
     public function removeExperienceI18n(ExperienceI18n $experienceI18n): static
     {
         if ($this->experienceI18n->removeElement($experienceI18n)) {
-            if ($experienceI18n->getLocaleFromRequest() === $this) {
+            if ($experienceI18n->getLocale() === $this) {
                 $experienceI18n->setLocale(null);
             }
         }
@@ -366,7 +366,7 @@ class Locale
     public function removeEducationI18n(EducationI18n $educationI18n): static
     {
         if ($this->educationI18n->removeElement($educationI18n)) {
-            if ($educationI18n->getLocaleFromRequest() === $this) {
+            if ($educationI18n->getLocale() === $this) {
                 $educationI18n->setLocale(null);
             }
         }
@@ -393,7 +393,7 @@ class Locale
     public function removeProjectI18n(ProjectI18n $projectI18n): static
     {
         if ($this->projectI18n->removeElement($projectI18n)) {
-            if ($projectI18n->getLocaleFromRequest() === $this) {
+            if ($projectI18n->getLocale() === $this) {
                 $projectI18n->setLocale(null);
             }
         }

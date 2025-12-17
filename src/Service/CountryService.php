@@ -20,14 +20,14 @@ final class CountryService
 
     public function create(CountryDTO $dto): Country
     {
-        $hydratedCountry = new Country();
+        $hydratedCountry = $this->hydrateCountry(new Country(), $dto);
         $this->em->persist($hydratedCountry);
 
         $this->i18nService->setCollectionOnCreate(
             $hydratedCountry,
             $dto->i18n,
-            fn () => new CountryI18n(),
-            fn (CountryI18n $i18n, CountryI18nDTO $i18nDTO, Locale $locale) => $this->hydrateCountryI18n($i18n, $i18nDTO, $locale)
+            fn() => new CountryI18n(),
+            fn(CountryI18n $i18n, CountryI18nDTO $i18nDTO, Locale $locale) => $this->hydrateCountryI18n($i18n, $i18nDTO, $locale)
         );
 
         $this->em->flush();
@@ -37,12 +37,13 @@ final class CountryService
 
     public function update(Country $country, CountryDTO $dto): Country
     {
+        $this->hydrateCountry($country, $dto);
         $this->i18nService->removeCollectionOnUpdate($country, $dto->i18n);
         $this->i18nService->setCollectionOnUpdate(
             $country,
             $dto->i18n,
-            fn () => new CountryI18n(),
-            fn (CountryI18n $i18n, CountryI18nDTO $i18nDTO, Locale $locale) => $this->hydrateCountryI18n($i18n, $i18nDTO, $locale),
+            fn() => new CountryI18n(),
+            fn(CountryI18n $i18n, CountryI18nDTO $i18nDTO, Locale $locale) => $this->hydrateCountryI18n($i18n, $i18nDTO, $locale),
             'country',
             $this->countryI18nRepository
         );
@@ -56,6 +57,12 @@ final class CountryService
     {
         $this->em->remove($country);
         $this->em->flush();
+    }
+
+    private function hydrateCountry(Country $country, CountryDTO $dto): Country
+    {
+        return $country
+            ->setShortened($dto->shortened);
     }
 
     private function hydrateCountryI18n(CountryI18n $i18n, CountryI18nDTO $dto, Locale $locale): CountryI18n

@@ -21,6 +21,9 @@ class LanguageI18n
     private ?string $label = null;
 
     #[ORM\Column(length: 255)]
+    private ?string $shortened = null;
+
+    #[ORM\Column(length: 255)]
     private ?string $level = null;
 
     #[ORM\ManyToOne(inversedBy: 'countryI18n')]
@@ -30,8 +33,7 @@ class LanguageI18n
     #[ORM\ManyToOne(inversedBy: 'i18n')]
     private ?Language $language = null;
 
-    public function __construct()
-    {}
+    public function __construct() {}
 
     public function getId(): ?int
     {
@@ -46,6 +48,18 @@ class LanguageI18n
     public function setLabel(string $label): static
     {
         $this->label = $label;
+
+        return $this;
+    }
+
+    public function getShortened(): ?string
+    {
+        return $this->shortened;
+    }
+
+    public function setShortened(string $shortened): static
+    {
+        $this->shortened = $shortened;
 
         return $this;
     }

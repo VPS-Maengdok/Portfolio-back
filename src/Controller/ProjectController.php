@@ -31,7 +31,7 @@ class ProjectController extends AbstractController
     {
         $lang = $localeRepository->getLocaleFromRequest($request);
         $data = $this->projectRepository->findAllWithLocale($lang->getId());
-        $serializer = $this->projectSerializer->list($data);
+        $serializer = $this->projectSerializer->list($data, 'list', $lang->getId());
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -46,9 +46,14 @@ class ProjectController extends AbstractController
         $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocaleFromRequest($request);
         $data = $isFromForm ?
-            $this->projectRepository->findOneById($project->getId()):
+            $this->projectRepository->findOneById($project->getId()) :
             $this->projectRepository->findOneWithLocale($project->getId(), $lang->getId());
-        $serializer = $this->projectSerializer->details($data, $isFromForm);
+        $serializer = $this->projectSerializer->details(
+            $data,
+            $isFromForm,
+            'details',
+            $isFromForm ? null : $lang->getId(),
+        );
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -56,11 +61,10 @@ class ProjectController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] ProjectDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $project = $this->projectService->create($dto);
         $serializer = $this->projectSerializer->create($project);
 
@@ -70,12 +74,11 @@ class ProjectController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] ProjectDTO $dto, 
+        )] ProjectDTO $dto,
         Project $project
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$project) {
             throw new Exception('Project not found.');
         }
@@ -94,7 +97,7 @@ class ProjectController extends AbstractController
         }
 
         $this->projectService->delete($project);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Project successfully deleted.']);
     }
 }

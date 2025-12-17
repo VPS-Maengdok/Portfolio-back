@@ -40,8 +40,7 @@ class ProjectI18n
     #[ORM\ManyToOne(inversedBy: 'i18n')]
     private ?Project $project = null;
 
-    public function __construct()
-    {}
+    public function __construct() {}
 
     public function getId(): ?int
     {
@@ -91,7 +90,7 @@ class ProjectI18n
 
     public function setCvDescription(?string $cvDescription): static
     {
-        $this->$cvDescription = $cvDescription;
+        $this->cvDescription = $cvDescription;
 
         return $this;
     }
