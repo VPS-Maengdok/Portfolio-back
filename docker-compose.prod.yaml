@@ -1,23 +1,23 @@
 services:
   portfolio_back:
+    image: maengdok/portfolio_back:1.0.0
     container_name: maengdok_portfolio_back
     build:
       context: .
-      dockerfile: docker/Dockerfile
-    image: php:8.4-fpm
-    working_dir: /srv/portfolio
+      dockerfile: docker/prod.Dockerfile
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: "0"
     volumes:
-      - ./:/srv/portfolio
-    healthcheck:
-      test: ["CMD-SHELL", "php -v >/dev/null 2>&1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      - portfolio_uploads:/srv/app/public/uploads
     networks:
       - caddy
       - portfolio
       - postgresql
     restart: unless-stopped
+
+volumes:
+  portfolio_uploads:
 
 networks:
   caddy:
