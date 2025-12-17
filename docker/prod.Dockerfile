@@ -38,7 +38,8 @@ WORKDIR /srv/app
 
 COPY --from=vendor /app /srv/app
 
-RUN chown -R maengdok_portfolio:maengdok_portfolio /srv/app/var
+RUN mkdir -p /srv/app/var \
+	&& chown -R www-data:www-data /srv/app/var
 
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
@@ -46,7 +47,7 @@ ENV APP_DEBUG=0
 RUN php -d variables_order=EGPCS bin/console cache:clear --no-warmup || true \
  && php -d variables_order=EGPCS bin/console cache:warmup || true
 
-USER maengdok_portfolio
+USER www-data
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD php -v >/dev/null 2>&1 || exit 1
