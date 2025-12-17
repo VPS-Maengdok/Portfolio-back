@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20251109004110 extends AbstractMigration
+final class Version20251217211104 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -202,19 +202,19 @@ final class Version20251109004110 extends AbstractMigration
         (4,NOW()),(5,NOW()),(6,NOW()),
         (7,NOW()),(8,NOW()),(9,NOW())
         ON CONFLICT DO NOTHING");
-        $this->addSql("INSERT INTO language_i18n (id, language_id, label, level, locale_id, datetime_immutable) VALUES
+        $this->addSql("INSERT INTO language_i18n (id, language_id, label, shortened, level, locale_id, datetime_immutable) VALUES
         -- fr
-        (1, 1, 'Français', 'Natif',  1, NOW()),
-        (2, 2, 'Anglais',  'B2+',    1, NOW()),
-        (3, 3, 'Coréen',   'A2+',    1, NOW()),
+        (1, 1, 'Français', 'fr', 'Natif',  1, NOW()),
+        (2, 2, 'Anglais', 'en',  'B2+',    1, NOW()),
+        (3, 3, 'Coréen', 'ko',   'A2+',    1, NOW()),
         -- en
-        (4, 1, 'French',   'Native', 2, NOW()),
-        (5, 2, 'English',  'B2+',    2, NOW()),
-        (6, 3, 'Korean',   'A2+',    2, NOW()),
+        (4, 1, 'French', 'fr',   'Native', 2, NOW()),
+        (5, 2, 'English', 'en',  'B2+',    2, NOW()),
+        (6, 3, 'Korean', 'ko',   'A2+',    2, NOW()),
         -- ko
-        (7, 1, '프랑스어',  '모국어',    3, NOW()),
-        (8, 2, '영어',     'B2+',     3, NOW()),
-        (9, 3, '한국어',    'A2+',     3, NOW())
+        (7, 1, '프랑스어', 'fr',  '모국어',    3, NOW()),
+        (8, 2, '영어', 'en',     'B2+',     3, NOW()),
+        (9, 3, '한국어', 'ko',    'A2+',     3, NOW())
         ON CONFLICT DO NOTHING");
 
         // Countries

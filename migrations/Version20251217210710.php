@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20251109004052 extends AbstractMigration
+final class Version20251217210710 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,10 +20,14 @@ final class Version20251109004052 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE TABLE access_token (id SERIAL NOT NULL, user_id INT NOT NULL, token VARCHAR(128) NOT NULL, expires_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_B6A2DD685F37A13B ON access_token (token)');
+        $this->addSql('CREATE INDEX IDX_B6A2DD68A76ED395 ON access_token (user_id)');
+        $this->addSql('COMMENT ON COLUMN access_token.expires_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE company (id SERIAL NOT NULL, country_id INT DEFAULT NULL, label VARCHAR(255) NOT NULL, url VARCHAR(255) DEFAULT NULL, city VARCHAR(255) NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_4FBF094FF92F3E70 ON company (country_id)');
         $this->addSql('COMMENT ON COLUMN company.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('CREATE TABLE country (id SERIAL NOT NULL, visa_availability_id INT DEFAULT NULL, expected_country_id INT DEFAULT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE country (id SERIAL NOT NULL, visa_availability_id INT DEFAULT NULL, expected_country_id INT DEFAULT NULL, shortened VARCHAR(255) DEFAULT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_5373C966D641A739 ON country (visa_availability_id)');
         $this->addSql('CREATE INDEX IDX_5373C9661F702855 ON country (expected_country_id)');
         $this->addSql('COMMENT ON COLUMN country.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
@@ -31,7 +35,7 @@ final class Version20251109004052 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_78659372E559DFD1 ON country_i18n (locale_id)');
         $this->addSql('CREATE INDEX IDX_78659372F92F3E70 ON country_i18n (country_id)');
         $this->addSql('COMMENT ON COLUMN country_i18n.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('CREATE TABLE curriculum (id SERIAL NOT NULL, location_id INT DEFAULT NULL, firstname VARCHAR(255) NOT NULL, lastname VARCHAR(255) NOT NULL, is_freelance BOOLEAN NOT NULL, freelance_company_name VARCHAR(255) DEFAULT NULL, is_available BOOLEAN NOT NULL, has_visa BOOLEAN NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE curriculum (id SERIAL NOT NULL, location_id INT DEFAULT NULL, firstname VARCHAR(255) NOT NULL, lastname VARCHAR(255) NOT NULL, city VARCHAR(255) NOT NULL, is_freelance BOOLEAN NOT NULL, freelance_company_name VARCHAR(255) DEFAULT NULL, is_available BOOLEAN NOT NULL, has_visa BOOLEAN NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_7BE2A7C364D218E ON curriculum (location_id)');
         $this->addSql('COMMENT ON COLUMN curriculum.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE curriculum_i18n (id SERIAL NOT NULL, locale_id INT NOT NULL, curriculum_id INT DEFAULT NULL, label VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
@@ -50,7 +54,7 @@ final class Version20251109004052 extends AbstractMigration
         $this->addSql('CREATE TABLE education_technology (education_id INT NOT NULL, technology_id INT NOT NULL, PRIMARY KEY(education_id, technology_id))');
         $this->addSql('CREATE INDEX IDX_A99FA5602CA1BD71 ON education_technology (education_id)');
         $this->addSql('CREATE INDEX IDX_A99FA5604235D463 ON education_technology (technology_id)');
-        $this->addSql('CREATE TABLE education_i18n (id SERIAL NOT NULL, locale_id INT NOT NULL, education_id INT DEFAULT NULL, label VARCHAR(255) NOT NULL, diploma VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE education_i18n (id SERIAL NOT NULL, locale_id INT NOT NULL, education_id INT DEFAULT NULL, label VARCHAR(255) NOT NULL, diploma VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL, description TEXT DEFAULT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_15CFA527E559DFD1 ON education_i18n (locale_id)');
         $this->addSql('CREATE INDEX IDX_15CFA5272CA1BD71 ON education_i18n (education_id)');
         $this->addSql('COMMENT ON COLUMN education_i18n.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
@@ -73,7 +77,7 @@ final class Version20251109004052 extends AbstractMigration
         $this->addSql('CREATE TABLE language (id SERIAL NOT NULL, curriculum_id INT DEFAULT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_D4DB71B55AEA4428 ON language (curriculum_id)');
         $this->addSql('COMMENT ON COLUMN language.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('CREATE TABLE language_i18n (id SERIAL NOT NULL, locale_id INT NOT NULL, language_id INT DEFAULT NULL, label VARCHAR(255) NOT NULL, level VARCHAR(255) NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE language_i18n (id SERIAL NOT NULL, locale_id INT NOT NULL, language_id INT DEFAULT NULL, label VARCHAR(255) NOT NULL, shortened VARCHAR(255) NOT NULL, level VARCHAR(255) NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_CD5FF2DAE559DFD1 ON language_i18n (locale_id)');
         $this->addSql('CREATE INDEX IDX_CD5FF2DA82F1BAF4 ON language_i18n (language_id)');
         $this->addSql('COMMENT ON COLUMN language_i18n.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
@@ -88,10 +92,11 @@ final class Version20251109004052 extends AbstractMigration
         $this->addSql('COMMENT ON COLUMN link_i18n.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE locale (id SERIAL NOT NULL, label VARCHAR(255) NOT NULL, shortened VARCHAR(255) NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('COMMENT ON COLUMN locale.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('CREATE TABLE picture (id SERIAL NOT NULL, project_id INT DEFAULT NULL, label VARCHAR(255) NOT NULL, path TEXT NOT NULL, mime_type VARCHAR(255) NOT NULL, bytes_size INT NOT NULL, width INT DEFAULT NULL, height INT DEFAULT NULL, sha256 VARCHAR(255) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE picture (id SERIAL NOT NULL, project_id INT DEFAULT NULL, label VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL, path TEXT NOT NULL, mime_type VARCHAR(255) NOT NULL, bytes_size INT NOT NULL, width INT DEFAULT NULL, height INT DEFAULT NULL, sha256 VARCHAR(255) NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_16DB4F895CC814F7 ON picture (sha256)');
         $this->addSql('CREATE INDEX IDX_16DB4F89166D1F9C ON picture (project_id)');
-        $this->addSql('COMMENT ON COLUMN picture.created_at IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('CREATE TABLE project (id SERIAL NOT NULL, status_id INT DEFAULT NULL, company_id INT DEFAULT NULL, school_id INT DEFAULT NULL, curriculum_id INT DEFAULT NULL, creation_date DATE DEFAULT NULL, is_hidden BOOLEAN NOT NULL, short_description TEXT NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('COMMENT ON COLUMN picture.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
+        $this->addSql('CREATE TABLE project (id SERIAL NOT NULL, status_id INT DEFAULT NULL, company_id INT DEFAULT NULL, school_id INT DEFAULT NULL, curriculum_id INT DEFAULT NULL, creation_date DATE DEFAULT NULL, is_hidden BOOLEAN NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_2FB3D0EE6BF700BD ON project (status_id)');
         $this->addSql('CREATE INDEX IDX_2FB3D0EE979B1AD6 ON project (company_id)');
         $this->addSql('CREATE INDEX IDX_2FB3D0EEC32A47EE ON project (school_id)');
@@ -136,7 +141,8 @@ final class Version20251109004052 extends AbstractMigration
         $this->addSql('CREATE TABLE technology (id SERIAL NOT NULL, curriculum_id INT DEFAULT NULL, label VARCHAR(255) NOT NULL, icon VARCHAR(255) NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_F463524D5AEA4428 ON technology (curriculum_id)');
         $this->addSql('COMMENT ON COLUMN technology.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('CREATE TABLE "user" (id SERIAL NOT NULL, firstname VARCHAR(255) NOT NULL, lastname VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE "user" (id SERIAL NOT NULL, firstname VARCHAR(255) NOT NULL, lastname VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, role JSON NOT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('COMMENT ON COLUMN "user".datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE work_type (id SERIAL NOT NULL, curriculum_id INT DEFAULT NULL, datetime_immutable TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_751DE6115AEA4428 ON work_type (curriculum_id)');
         $this->addSql('COMMENT ON COLUMN work_type.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
@@ -144,6 +150,7 @@ final class Version20251109004052 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_4A5175CBE559DFD1 ON work_type_i18n (locale_id)');
         $this->addSql('CREATE INDEX IDX_4A5175CB108734B1 ON work_type_i18n (work_type_id)');
         $this->addSql('COMMENT ON COLUMN work_type_i18n.datetime_immutable IS \'(DC2Type:datetime_immutable)\'');
+        $this->addSql('ALTER TABLE access_token ADD CONSTRAINT FK_B6A2DD68A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE company ADD CONSTRAINT FK_4FBF094FF92F3E70 FOREIGN KEY (country_id) REFERENCES country (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE country ADD CONSTRAINT FK_5373C966D641A739 FOREIGN KEY (visa_availability_id) REFERENCES curriculum (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE country ADD CONSTRAINT FK_5373C9661F702855 FOREIGN KEY (expected_country_id) REFERENCES curriculum (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
@@ -207,6 +214,7 @@ final class Version20251109004052 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
+        $this->addSql('ALTER TABLE access_token DROP CONSTRAINT FK_B6A2DD68A76ED395');
         $this->addSql('ALTER TABLE company DROP CONSTRAINT FK_4FBF094FF92F3E70');
         $this->addSql('ALTER TABLE country DROP CONSTRAINT FK_5373C966D641A739');
         $this->addSql('ALTER TABLE country DROP CONSTRAINT FK_5373C9661F702855');
@@ -264,6 +272,7 @@ final class Version20251109004052 extends AbstractMigration
         $this->addSql('ALTER TABLE work_type DROP CONSTRAINT FK_751DE6115AEA4428');
         $this->addSql('ALTER TABLE work_type_i18n DROP CONSTRAINT FK_4A5175CBE559DFD1');
         $this->addSql('ALTER TABLE work_type_i18n DROP CONSTRAINT FK_4A5175CB108734B1');
+        $this->addSql('DROP TABLE access_token');
         $this->addSql('DROP TABLE company');
         $this->addSql('DROP TABLE country');
         $this->addSql('DROP TABLE country_i18n');
