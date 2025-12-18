@@ -18,6 +18,8 @@ services:
 
 volumes:
   portfolio_uploads:
+    external: true
+    name: portfolio_uploads
 
 networks:
   caddy:
