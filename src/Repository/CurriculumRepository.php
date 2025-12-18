@@ -92,7 +92,7 @@ class CurriculumRepository extends ServiceEntityRepository
     public function findFirstCurriculum(int $locale): ?Curriculum
     {
         return $this->createQueryBuilder('c')
-            ->select('c', 'i18n', 'locale')
+            ->select('DISTINCT c', 'i18n', 'locale')
             ->leftJoin('c.i18n', 'i18n')
             ->leftJoin('i18n.locale', 'locale')
             ->andWhere('locale.id = :localeId')

@@ -51,11 +51,11 @@ class CountryRepository extends ServiceEntityRepository
             ->setParameter('localeId', $locale);
 
         if ($curriculum) {
-            $req->setParameter('curriculumId', $curriculum)
-            ->andWhere('c.visaAvailability = :curriculumId');
-
+            $req->setParameter('curriculumId', $curriculum);
             if ($isForExpectedCountries) {
                 $req->andWhere('c.expectedCountry = :curriculumId');
+            } else {
+                $req->andWhere('c.visaAvailability = :curriculumId');
             }
         }
 

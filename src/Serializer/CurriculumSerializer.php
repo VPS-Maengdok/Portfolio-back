@@ -35,8 +35,7 @@ final class CurriculumSerializer extends Serializer
         ?array $collections = null,
         ?bool $everyLocale = false,
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         $base = [
             'id' => $curriculum->getId(),
             'firstname' => $curriculum->getFirstname(),
