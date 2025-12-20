@@ -48,7 +48,7 @@ class LinkController extends AbstractController
         $data = $isFromForm ?
             $this->linkRepository->findOneById($link->getId()) :
             $this->linkRepository->findOneWithLocale($link->getId(), $lang->getId());
-        $serializer = $this->linkSerializer->details($data, $isFromForm);
+        $serializer = $this->linkSerializer->details($data, $isFromForm, $isFromForm ? null : $lang->getId());
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }

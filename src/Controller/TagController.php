@@ -43,9 +43,12 @@ class TagController extends AbstractController
             throw new Exception('Tag not found.');
         }
 
+        $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $this->tagRepository->findOneWithLocale($tag->getId(), $lang->getId());
-        $serializer = $this->tagSerializer->details($data);
+        $data = $isFromForm ?
+            $this->tagRepository->findOneById($tag->getId()) :
+            $this->tagRepository->findOneWithLocale($tag->getId(), $lang->getId());
+        $serializer = $this->tagSerializer->details($data, $isFromForm, $isFromForm ? null : $lang->getId());
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -53,11 +56,10 @@ class TagController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] TagDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $tag = $this->tagService->create($dto);
         $serializer = $this->tagSerializer->create($tag);
 
@@ -67,12 +69,11 @@ class TagController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] TagDTO $dto, 
+        )] TagDTO $dto,
         Tag $tag
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$tag) {
             throw new Exception('Tag not found.');
         }
@@ -91,7 +92,7 @@ class TagController extends AbstractController
         }
 
         $this->tagService->delete($tag);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Tag successfully deleted.']);
     }
 }

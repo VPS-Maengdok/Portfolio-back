@@ -45,10 +45,10 @@ class StatusController extends AbstractController
 
         $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $isFromForm ? 
+        $data = $isFromForm ?
             $this->statusRepository->findOneById($status->getId()) :
             $this->statusRepository->findOneWithLocale($status->getId(), $lang->getId());
-        $serializer = $this->statusSerializer->details($data, $isFromForm);
+        $serializer = $this->statusSerializer->details($data, $isFromForm, $isFromForm ? null : $lang->getId());
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -56,11 +56,10 @@ class StatusController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] StatusDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $status = $this->statusService->create($dto);
         $serializer = $this->statusSerializer->create($status);
 
@@ -70,12 +69,11 @@ class StatusController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] StatusDTO $dto, 
+        )] StatusDTO $dto,
         Status $status
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$status) {
             throw new Exception('Status not found.');
         }
@@ -94,7 +92,7 @@ class StatusController extends AbstractController
         }
 
         $this->statusService->delete($status);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Status successfully deleted.']);
     }
 }

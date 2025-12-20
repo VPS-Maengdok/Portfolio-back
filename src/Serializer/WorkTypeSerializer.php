@@ -17,12 +17,11 @@ final class WorkTypeSerializer extends Serializer
         WorkType $workType,
         ?bool $everyLocale = false,
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         return [
             'id' => $workType->getId(),
             'i18n' => $everyLocale ?
-                $this->i18nComplete($workType->getI18n()->toArray(), [], $localeId) :
+                $this->i18nComplete($workType->getI18n()->toArray()) :
                 $this->i18n($workType->getI18n(), [], $localeId),
             'curriculum' => $workType->getCurriculum()?->getId(),
         ];

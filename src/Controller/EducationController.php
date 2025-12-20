@@ -43,9 +43,12 @@ class EducationController extends AbstractController
             throw new Exception('Education not found.');
         }
 
+        $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $this->educationRepository->findOneWithLocale($education->getId(), $lang->getId());
-        $serializer = $this->educationSerializer->details($data);
+        $data = $isFromForm ?
+            $this->educationRepository->findOneById($education->getId()) :
+            $this->educationRepository->findOneWithLocale($education->getId(), $lang->getId());
+        $serializer = $this->educationSerializer->details($data, $isFromForm, $isFromForm ? null : $lang->getId());
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -53,11 +56,10 @@ class EducationController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] EducationDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $education = $this->educationService->create($dto);
         $serializer = $this->educationSerializer->create($education);
 
@@ -67,12 +69,11 @@ class EducationController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] EducationDTO $dto, 
+        )] EducationDTO $dto,
         Education $education
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$education) {
             throw new Exception('Education not found.');
         }
@@ -91,7 +92,7 @@ class EducationController extends AbstractController
         }
 
         $this->educationService->delete($education);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Education successfully deleted.']);
     }
 }

@@ -5,7 +5,7 @@ namespace App\Serializer;
 use App\Entity\Skill;
 
 final class SkillSerializer extends Serializer
-{    
+{
     public function __construct() {}
 
     public function list(array $skills, ?int $localeId = null): array
@@ -19,12 +19,11 @@ final class SkillSerializer extends Serializer
         Skill $skill,
         ?bool $everyLocale = false,
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         return [
             'id' => $skill->getId(),
-            'i18n' => $everyLocale ? 
-                $this->i18nComplete($skill->getI18n()->toArray(), [], $localeId) :
+            'i18n' => $everyLocale ?
+                $this->i18nComplete($skill->getI18n()->toArray()) :
                 $this->i18n($skill->getI18n(), [], $localeId),
             'curriculum' => $skill->getCurriculum()?->getId(),
         ];

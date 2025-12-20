@@ -24,10 +24,9 @@ class CountryController extends AbstractController
         private readonly CountryRepository $countryRepository,
         private readonly CountryService $countryService,
         private readonly CountrySerializer $countrySerializer
-    )
-    {}
+    ) {}
 
-    #[Route('/', name:'_list', methods: ['GET'])]
+    #[Route('/', name: '_list', methods: ['GET'])]
     public function list(Request $request, LocaleRequestService $localeRequestService): JsonResponse
     {
         $lang = $localeRequestService->getLocaleFromRequest($request);
@@ -46,10 +45,10 @@ class CountryController extends AbstractController
 
         $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $isFromForm ? 
+        $data = $isFromForm ?
             $this->countryRepository->findOneById($country->getId()) :
             $this->countryRepository->findOneWithLocale($country->getId(), $lang->getId());
-        $serializer = $this->countrySerializer->details($data, $isFromForm);
+        $serializer = $this->countrySerializer->details($data, $isFromForm, $isFromForm ? null : $lang->getId());
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -57,11 +56,10 @@ class CountryController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] CountryDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $country = $this->countryService->create($dto);
         $serializer = $this->countrySerializer->create($country);
 
@@ -71,12 +69,11 @@ class CountryController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] CountryDTO $dto, 
+        )] CountryDTO $dto,
         Country $country
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$country) {
             throw new Exception('Country not found.');
         }
@@ -95,7 +92,7 @@ class CountryController extends AbstractController
         }
 
         $this->countryService->delete($country);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Country successfully deleted.']);
     }
 }

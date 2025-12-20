@@ -51,7 +51,6 @@ class SkillController extends AbstractController
         $serializer = $this->skillSerializer->details(
             $data,
             $isFromForm,
-            null,
             $isFromForm ? null : $lang->getId(),
         );
 
@@ -61,11 +60,10 @@ class SkillController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] SkillDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $skill = $this->skillService->create($dto);
         $serializer = $this->skillSerializer->create($skill);
 
@@ -75,12 +73,11 @@ class SkillController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] SkillDTO $dto, 
+        )] SkillDTO $dto,
         Skill $skill
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$skill) {
             throw new Exception('Skill not found.');
         }
@@ -99,7 +96,7 @@ class SkillController extends AbstractController
         }
 
         $this->skillService->delete($skill);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Skill successfully deleted.']);
     }
 }

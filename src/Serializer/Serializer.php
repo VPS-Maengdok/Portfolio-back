@@ -25,8 +25,7 @@ class Serializer
         Collection $i18n,
         ?array $additionalFields = [],
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         if (!$translation = $this->first18nWithLocale($i18n, $localeId)) {
             return [];
         }
@@ -45,19 +44,8 @@ class Serializer
         return array_merge($base, $additionalRows);
     }
 
-    public function i18nComplete(
-        array $i18n,
-        ?array $additionalFields = [],
-        ?int $localeId = null,
-    ): array
+    public function i18nComplete(array $i18n, ?array $additionalFields = []): array
     {
-        $filtered = $localeId
-            ? array_filter(
-                $i18n,
-                fn($locale) => $locale->getLocale()->getId() === $localeId,
-              )
-            : $i18n;
-
         $result = array_values(array_map(function ($locale) use ($additionalFields) {
             $base = [
                 'id' => $locale->getId(),
@@ -71,7 +59,7 @@ class Serializer
 
             $additionalRows = $this->additionalMethod($additionalFields, $locale);
             return array_merge($base, $additionalRows);
-        }, $filtered));
+        }, $i18n));
 
         array_multisort(array_column($result, 'id'), SORT_ASC, $result);
 

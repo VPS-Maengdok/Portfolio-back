@@ -27,24 +27,24 @@ class SchoolController extends AbstractController
     ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
-    public function list(Request $request, LocaleRequestService $localeRepository, SchoolRepository $schoolRepository): JsonResponse
+    public function list(Request $request, LocaleRequestService $localeRepository): JsonResponse
     {
         $lang = $localeRepository->getLocaleFromRequest($request);
-        $data = $schoolRepository->findAllWithLocale($lang->getId());
+        $data = $this->schoolRepository->findAllWithLocale($lang->getId());
         $serializer = $this->schoolSerializer->list($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
 
     #[Route('/{id}', name: '_details', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function details(Request $request, School $school, LocaleRequestService $localeRequestService, SchoolRepository $schoolRepository): JsonResponse
+    public function details(Request $request, School $school, LocaleRequestService $localeRequestService): JsonResponse
     {
         if (!$school) {
             throw new Exception('School not found.');
         }
 
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $schoolRepository->findOneWithLocale($school->getId(), $lang->getId());
+        $data = $this->schoolRepository->findOneWithLocale($school->getId(), $lang->getId());
         $serializer = $this->schoolSerializer->details($data);
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
@@ -53,11 +53,10 @@ class SchoolController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] SchoolDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $school = $this->schoolService->create($dto);
         $serializer = $this->schoolSerializer->create($school);
 
@@ -67,12 +66,11 @@ class SchoolController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] SchoolDTO $dto, 
+        )] SchoolDTO $dto,
         School $school
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$school) {
             throw new Exception('School not found.');
         }
@@ -91,7 +89,7 @@ class SchoolController extends AbstractController
         }
 
         $this->schoolService->delete($school);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'School successfully deleted.']);
     }
 }

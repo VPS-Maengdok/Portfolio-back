@@ -43,9 +43,12 @@ class ExperienceController extends AbstractController
             throw new Exception('Experience not found.');
         }
 
+        $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $this->experienceRepository->findOneWithLocale($experience->getId(), $lang->getId());
-        $serializer = $this->experienceSerializer->details($data);
+        $data = $isFromForm ?
+            $this->experienceRepository->findOneById($experience->getId()) :
+            $this->experienceRepository->findOneWithLocale($experience->getId(), $lang->getId());
+        $serializer = $this->experienceSerializer->details($data, $isFromForm, $isFromForm ? null : $lang->getId());
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -53,11 +56,10 @@ class ExperienceController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] ExperienceDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $experience = $this->experienceService->create($dto);
         $serializer = $this->experienceSerializer->create($experience);
 
@@ -67,12 +69,11 @@ class ExperienceController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] ExperienceDTO $dto, 
+        )] ExperienceDTO $dto,
         Experience $experience
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$experience) {
             throw new Exception('Experience not found.');
         }
@@ -91,7 +92,7 @@ class ExperienceController extends AbstractController
         }
 
         $this->experienceService->delete($experience);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Experience successfully deleted.']);
     }
 }

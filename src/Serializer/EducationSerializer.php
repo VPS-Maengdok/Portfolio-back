@@ -23,12 +23,11 @@ final class EducationSerializer extends Serializer
         Education $education,
         ?bool $everyLocale = false,
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         return [
             'id' => $education->getId(),
             'i18n' => $everyLocale ?
-                $this->i18nComplete($education->getI18n()->toArray(), ['diploma', 'slug'], $localeId) :
+                $this->i18nComplete($education->getI18n()->toArray(), ['diploma', 'slug']) :
                 $this->i18n($education->getI18n(), ['diploma', 'slug'], $localeId),
             'school' => $education->getSchool() ? $this->schoolSerializer->details($education->getSchool()) : null,
             'skill' => $education->getSkill() ? $this->skillSerializer->list($education->getSkill()->toArray()) : [],

@@ -17,12 +17,11 @@ final class TagSerializer extends Serializer
         Tag $tag,
         ?bool $everyLocale = false,
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         return [
             'id' => $tag->getId(),
             'i18n' => $everyLocale ?
-                $this->i18nComplete($tag->getI18n()->toArray(), [], $localeId) :
+                $this->i18nComplete($tag->getI18n()->toArray()) :
                 $this->i18n($tag->getI18n(), [], $localeId),
         ];
     }

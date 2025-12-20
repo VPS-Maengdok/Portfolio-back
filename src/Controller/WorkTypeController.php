@@ -43,9 +43,12 @@ class WorkTypeController extends AbstractController
             throw new Exception('Work Type not found.');
         }
 
+        $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $this->workTypeRepository->findOneWithLocale($workType->getId(), $lang->getId());
-        $serializer = $this->workTypeSerializer->details($data);
+        $data = $isFromForm ?
+            $this->workTypeRepository->findOneById($workType->getId()) :
+            $this->workTypeRepository->findOneWithLocale($workType->getId(), $lang->getId());
+        $serializer = $this->workTypeSerializer->details($data, $isFromForm, $isFromForm ? null : $lang->getId());
 
         return $this->apiResponse->getApiResponse(code: 200, data: $serializer);
     }
@@ -53,11 +56,10 @@ class WorkTypeController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] WorkTypeDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $workType = $this->workTypeService->create($dto);
         $serializer = $this->workTypeSerializer->create($workType);
 
@@ -67,12 +69,11 @@ class WorkTypeController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] WorkTypeDTO $dto, 
+        )] WorkTypeDTO $dto,
         WorkType $workType
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$workType) {
             throw new Exception('WorkType not found.');
         }
@@ -91,7 +92,7 @@ class WorkTypeController extends AbstractController
         }
 
         $this->workTypeService->delete($workType);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'WorkType successfully deleted.']);
     }
 }

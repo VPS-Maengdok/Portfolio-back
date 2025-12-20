@@ -23,13 +23,12 @@ final class ExperienceSerializer extends Serializer
         Experience $experience,
         ?bool $everyLocale = false,
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         return [
             'id' => $experience->getId(),
             'isCurrentWork' => $experience->isCurrentWork(),
             'i18n' => $everyLocale ?
-                $this->i18nComplete($experience->getI18n()->toArray(), ['description', 'slug'], $localeId) :
+                $this->i18nComplete($experience->getI18n()->toArray(), ['description', 'slug']) :
                 $this->i18n($experience->getI18n(), ['description', 'slug'], $localeId),
             'company' => $experience->getCompany() ? $this->companySerializer->details($experience->getCompany()) : null,
             'skill' => $experience->getSkill() ? $this->skillSerializer->list($experience->getSkill()->toArray()) : [],

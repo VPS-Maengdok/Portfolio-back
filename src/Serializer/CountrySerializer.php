@@ -19,13 +19,12 @@ final class CountrySerializer extends Serializer
         Country $country,
         ?bool $everyLocale = false,
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         return [
             'id' => $country->getId(),
             'shortened' => $country?->getShortened(),
             'i18n' => $everyLocale ?
-                $this->i18nComplete($country->getI18n()->toArray(), [], $localeId) :
+                $this->i18nComplete($country->getI18n()->toArray()) :
                 $this->i18n($country->getI18n(), [], $localeId),
         ];
     }

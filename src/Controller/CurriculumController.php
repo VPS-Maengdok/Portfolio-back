@@ -73,16 +73,19 @@ class CurriculumController extends AbstractController
             throw new Exception('Curriculum not found.');
         }
 
+        $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocaleFromRequest($request);
         $limit = filter_var($request->query->get('limit'), FILTER_VALIDATE_INT) ?: null;
 
-        $data = $this->curriculumRepository->findOneWithLocale($curriculum->getId(), $lang->getId());
+        $data = $isFromForm ?
+            $this->curriculumRepository->findOneById($curriculum->getId()) :
+            $this->curriculumRepository->findOneWithLocale($curriculum->getId(), $lang->getId());
         $collections = $this->fetchCollections($curriculum->getId(), $lang->getId(), $limit);
 
         $serializer = $this->curriculumSerializer->details(
             $data,
             $collections,
-            false,
+            $isFromForm,
             $lang->getId(),
         );
 

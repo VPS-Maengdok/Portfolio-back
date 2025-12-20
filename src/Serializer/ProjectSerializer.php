@@ -21,8 +21,7 @@ final class ProjectSerializer extends Serializer
         array $projects,
         ?string $format = 'list',
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         return array_map(function ($project) use ($format, $localeId) {
             return $this->details($project, format: $format, localeId: $localeId);
         }, $projects);
@@ -33,13 +32,12 @@ final class ProjectSerializer extends Serializer
         ?bool $everyLocale = false,
         ?string $format = 'details',
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         return [
             'id' => $project->getId(),
             'isHidden' => $project->isHidden(),
             'i18n' => $everyLocale ?
-                $this->getI18n($project->getI18n(), 'admin', $localeId) :
+                $this->getI18n($project->getI18n(), 'admin') :
                 $this->getI18n($project->getI18n(), $format, $localeId),
             'company' => $project->getCompany() ? $this->companySerializer->details($project->getCompany()) : null,
             'school' => $project->getSchool() ? $this->schoolSerializer->details($project->getSchool()) : null,

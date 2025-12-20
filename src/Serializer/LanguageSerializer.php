@@ -19,12 +19,11 @@ final class LanguageSerializer extends Serializer
         Language $language,
         ?bool $everyLocale = false,
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         return [
             'id' => $language->getId(),
             'i18n' => $everyLocale ?
-                $this->i18nComplete($language->getI18n()->toArray(), ['shortened', 'level'], $localeId) :
+                $this->i18nComplete($language->getI18n()->toArray(), ['shortened', 'level']) :
                 $this->i18n($language->getI18n(), ['shortened', 'level'], $localeId),
             'curriculum' => $language->getCurriculum()?->getId(),
         ];

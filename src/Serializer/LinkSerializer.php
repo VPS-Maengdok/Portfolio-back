@@ -19,13 +19,12 @@ final class LinkSerializer extends Serializer
         Link $link,
         ?bool $everyLocale = false,
         ?int $localeId = null,
-    ): array
-    {
+    ): array {
         return [
             'id' => $link->getId(),
             'icon' => $link?->getIcon(),
-            'i18n' => $everyLocale ? 
-                $this->i18nComplete($link->getI18n()->toArray(), [], $localeId) : 
+            'i18n' => $everyLocale ?
+                $this->i18nComplete($link->getI18n()->toArray()) :
                 $this->i18n($link->getI18n(), [], $localeId),
             'url' => $link?->getUrl(),
             'repositoryUrl' => $link?->getRepositoryUrl(),

@@ -45,13 +45,12 @@ class LanguageController extends AbstractController
 
         $isFromForm = filter_var($request->query->get('fromForm'), FILTER_VALIDATE_BOOL);
         $lang = $localeRequestService->getLocaleFromRequest($request);
-        $data = $isFromForm ? 
-        $this->languageRepository->findOneById($language->getId()) :
-        $this->languageRepository->findOneWithLocale($language->getId(), $lang->getId());
+        $data = $isFromForm ?
+            $this->languageRepository->findOneById($language->getId()) :
+            $this->languageRepository->findOneWithLocale($language->getId(), $lang->getId());
         $serializer = $this->languageSerializer->details(
             $data,
             $isFromForm,
-            null,
             $isFromForm ? null : $lang->getId(),
         );
 
@@ -61,11 +60,10 @@ class LanguageController extends AbstractController
     #[Route('/', name: '_create', methods: ['POST'])]
     public function create(
         #[MapRequestPayload(
-            validationGroups: ['create'], 
+            validationGroups: ['create'],
             acceptFormat: 'json'
         )] LanguageDTO $dto
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $language = $this->languageService->create($dto);
         $serializer = $this->languageSerializer->create($language);
 
@@ -75,12 +73,11 @@ class LanguageController extends AbstractController
     #[Route('/{id}', name: '_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         #[MapRequestPayload(
-            validationGroups: ['update'], 
+            validationGroups: ['update'],
             acceptFormat: 'json'
-        )] LanguageDTO $dto, 
+        )] LanguageDTO $dto,
         Language $language
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$language) {
             throw new Exception('Language not found.');
         }
@@ -99,7 +96,7 @@ class LanguageController extends AbstractController
         }
 
         $this->languageService->delete($language);
-        
+
         return $this->apiResponse->getApiResponse(200, ['result' => 'Success', 'msg' => 'Language successfully deleted.']);
     }
 }
