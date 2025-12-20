@@ -46,8 +46,8 @@ final class CurriculumSerializer extends Serializer
             'isAvailable' => $curriculum->isAvailable(),
             'hasVisa' => $curriculum->hasVisa(),
             'i18n' => $everyLocale ?
-                $this->i18nComplete($curriculum->getI18n()->toArray(), ['description', 'slug']) :
-                $this->i18n($curriculum->getI18n(), ['description', 'slug'], $localeId),
+                $this->i18nComplete($curriculum->getI18n()->toArray(), ['slug']) :
+                $this->i18n($curriculum->getI18n(), ['slug'], $localeId),
             'location' => $curriculum->getLocation() ?
                 $this->countrySerializer->details($curriculum->getLocation(), false, $localeId) :
                 null,
