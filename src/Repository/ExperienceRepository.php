@@ -71,7 +71,8 @@ class ExperienceRepository extends ServiceEntityRepository
         }
 
         $req
-            ->addOrderBy('CASE WHEN e.endingDate IS NULL THEN 1 ELSE 0 END', 'DESC')
+            ->addSelect('CASE WHEN e.endingDate IS NULL THEN 1 ELSE 0 END AS HIDDEN currentFirst')
+            ->addOrderBy('currentFirst', 'DESC')
             ->addOrderBy('e.endingDate', 'DESC')
             ->addOrderBy('e.startingDate', 'DESC');
 
