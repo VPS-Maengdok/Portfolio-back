@@ -70,7 +70,10 @@ class ExperienceRepository extends ServiceEntityRepository
                 ->setParameter('curriculumId', $curriculum);
         }
 
-        $req->orderBy('e.startingDate', 'DESC')->addOrderBy('e.endingDate', 'DESC');
+        $req
+            ->addOrderBy('CASE WHEN e.endingDate IS NULL THEN 1 ELSE 0 END', 'DESC')
+            ->addOrderBy('e.endingDate', 'DESC')
+            ->addOrderBy('e.startingDate', 'DESC');
 
         if ($limit && $limit > 0) {
             $req->setMaxResults($limit);
