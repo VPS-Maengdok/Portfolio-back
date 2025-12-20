@@ -59,7 +59,7 @@ class EducationRepository extends ServiceEntityRepository
             ->leftJoin('e.skill', 'skill')
             ->leftJoin('skill.i18n', 'skill_i18n')
             ->leftJoin('skill_i18n.locale', 'skill_locale')
-            ->andWhere('skill_locale.id = :localeId')
+            ->andWhere('(skill_locale.id = :localeId OR skill IS NULL)')
 
             ->leftJoin('e.technology', 'technology')
 
@@ -99,7 +99,7 @@ class EducationRepository extends ServiceEntityRepository
             ->leftJoin('e.skill', 'skill')
             ->leftJoin('skill.i18n', 'skill_i18n')
             ->leftJoin('skill_i18n.locale', 'skill_locale')
-            ->andWhere('skill_locale.id = :localeId')
+            ->andWhere('(skill_locale.id = :localeId OR skill IS NULL)')
 
             ->leftJoin('e.technology', 'technology')
 
