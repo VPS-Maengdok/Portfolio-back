@@ -210,7 +210,14 @@
       {% for exp in experiences %}
         <article>
           <p><strong>{{ _self.translationField(exp.i18n) }}</strong></p>
-          <p>@{{ exp.company ? exp.company.label : (exp.school ? exp.school.label : '') }}
+          <p>
+            {% if exp.company and exp.company.url %}
+              <a href="{{ exp.company.url }}" target="_blank">
+              @{{ exp.company.label}}
+              </a>
+            {% else %}
+              @{{ exp.company.label}}
+            {% endif %}
             | {{ exp.startingDate ? exp.startingDate|date('Y-m') : '' }}
              — {{ exp.endingDate ? exp.endingDate|date('Y-m') : 'Présent' }}
           </p>
@@ -237,11 +244,18 @@
       {% for education in educations %}
         <article>
           <p><strong>{{ _self.translationField(education.i18n) }}</strong></p>
-          <p>@{{ education.school ? education.school.label : '' }}
+          <p>
+            {% if education.school and education.school.url %}
+              <a href="{{ education.school.url }}" target="_blank">
+              @{{ education.school.label}}
+              </a>
+            {% else %}
+              @{{ education.school.label}}
+            {% endif %}
             | {{ education.startingDate ? education.startingDate|date('Y-m') : '' }}
              — {{ education.endingDate ? education.endingDate|date('Y-m') : 'Présent' }}
           </p>
-          {% set eduDescription = _self.translationField(education.i18n, 'description') %}
+          {% set eduDescription = _self.translationField(education.i18n, 'description', true) %}
           {% if eduDescription %}
             <div>{{ eduDescription|raw }}</div>
           {% endif %}
@@ -255,13 +269,30 @@
       <h2>Projets</h2>
       {% for project in projects %}
         <article>
+          <p><strong>{{ _self.translationField(project.i18n) }}</strong></p>
           <p>
             <strong>
-              {{ project.company ? project.company.label : '' }}
-              {% if not project.company and project.school %}{{ project.school.label }}{% endif %}
+              {% if project.company and not project.school %}
+                {% if project.company.url %}
+                  <a href="{{ project.company.url }}" target="_blank">
+                  @{{ project.company.label}}
+                  </a>
+                {% else %}
+                  @{{ project.company.label}}
+                {% endif %}
+              {% endif %}
+
+              {% if not project.company and project.school %}
+                {% if project.school.url %}
+                  <a href="{{ project.school.url }}" target="_blank">
+                  @{{ project.school.label}}
+                  </a>
+                {% else %}
+                  @{{ project.school.label}}
+                {% endif %}
+              {% endif %}
             </strong>
           </p>
-          <p>{{ _self.translationField(project.i18n) }}</p>
           {% set projectDescription = _self.translationField(project.i18n, 'cvDescription', true) %}
           {% if projectDescription %}
             <div>{{ projectDescription }}</div>
@@ -294,7 +325,7 @@
       <ul>
         {% for language in languages %}
           <li>
-            {{ _self.translationField(language.i18n, 'shortened') ?: _self.translationField(language.i18n) }}
+            {{ _self.translationField(language.i18n, 'label') ?: _self.translationField(language.i18n) }}
             {% if _self.translationField(language.i18n, 'level') %}
               — {{ _self.translationField(language.i18n, 'level') }}
             {% endif %}

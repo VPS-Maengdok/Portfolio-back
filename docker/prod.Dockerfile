@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libonig-dev \
       libxml2-dev \
       wkhtmltopdf \
+      fonts-noto-cjk \
       curl \
     && docker-php-ext-install pdo pdo_pgsql opcache \
     && rm -rf /var/lib/apt/lists/*

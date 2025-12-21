@@ -15,25 +15,24 @@ final class PdfGenerator
 
     public function generate(Curriculum $curriculum, array $collections, string $lang): string
     {
-        if ($lang === 'fr') {
-            $html = $this->twig->render('resume/printFR.html.twig', [
-                'cv' => $curriculum,
-                'collections' => $collections,
-            ]);
-        }
+        $template = match ($lang) {
+            'fr' => 'resume/printFR.html.twig',
+            'en' => 'resume/printEN.html.twig',
+            'ko' => 'resume/printKO.html.twig',
+            default => 'resume/printEN.html.twig',
+        };
 
-        if ($lang === 'en') {
-            $html = $this->twig->render('resume/printEN.html.twig', [
-                'cv' => $curriculum,
-                'collections' => $collections,
-            ]);
-        }
+        $html = $this->twig->render($template, [
+            'cv' => $curriculum,
+            'collections' => $collections,
+        ]);
 
         return $this->pdf->getOutputFromHtml($html, [
             'title' => sprintf('%s %s resume %s', $curriculum->getFirstname(), $curriculum->getLastname(), $lang),
             'page-size' => 'A4',
             'print-media-type' => true,
             'encoding' => 'UTF-8',
+            'enable-local-file-access' => true,
         ]);
     }
 }
