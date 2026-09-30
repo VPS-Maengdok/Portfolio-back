@@ -20,6 +20,10 @@ security:
                 username_path: email
                 password_path: password
                 success_handler: App\Security\LoginSuccessHandler
+                failure_handler: App\Security\LoginFailureHandler
+            login_throttling:
+                max_attempts: 5
+                interval: '1 minute'
         api:
             pattern: ^/
             stateless: true
@@ -35,9 +39,10 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/user/login, roles: PUBLIC_ACCESS }
+        - { path: ^/user, roles: ROLE_ADMIN }
         - { path: ^/, methods: [POST, PUT, DELETE], roles: ROLE_ADMIN }
         - { path: ^/, methods: [GET], roles: PUBLIC_ACCESS }
-        - { path: ^/user/login, roles: PUBLIC_ACCESS }
 when@test:
     security:
         password_hashers:
