@@ -39,14 +39,14 @@ WORKDIR /srv/app
 
 COPY --from=vendor /app /srv/app
 
-RUN mkdir -p /srv/app/var \
-	&& chown -R www-data:www-data /srv/app/var
-
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
 
-RUN php -d variables_order=EGPCS bin/console cache:clear --no-warmup || true \
- && php -d variables_order=EGPCS bin/console cache:warmup || true
+RUN php -d variables_order=EGPCS bin/console cache:clear --no-warmup \
+ && php -d variables_order=EGPCS bin/console cache:warmup
+
+RUN mkdir -p /srv/app/var \
+	&& chown -R www-data:www-data /srv/app/var
 
 USER www-data
 

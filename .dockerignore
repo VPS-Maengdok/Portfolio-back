@@ -1,0 +1,10 @@
+/vendor
+/var
+/.git
+/node_modules
+/.env.local
+/.env.*.local
+/docker-compose*.yaml
+/.github
+/tests
+/*.md
