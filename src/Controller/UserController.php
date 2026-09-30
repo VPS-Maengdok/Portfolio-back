@@ -26,6 +26,7 @@ class UserController extends AbstractController
     ) {}
 
     #[Route('/', name: '_list', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function list(UserRepository $userRepository): JsonResponse
     {
         $data = $userRepository->findAll();
