@@ -1,19 +1,35 @@
 services:
   portfolio_back:
-    image: maengdok/portfolio_back:1.0.0
+    # 1.0.0 = previous PHP-FPM image, kept on the VPS for rollback
+    image: maengdok/portfolio_back:2.0.0
     container_name: maengdok_portfolio_back
     build:
       context: .
       dockerfile: docker/prod.Dockerfile
+    # Secrets (APP_SECRET, DATABASE_URL...) are read at runtime, never baked into the image
+    env_file:
+      - .env
     environment:
       APP_ENV: prod
       APP_DEBUG: "0"
+      # Only Traefik can reach this container (no published port, private Docker
+      # networks), and Traefik overwrites any client-sent X-Forwarded-For.
+      SYMFONY_TRUSTED_PROXIES: private_ranges
+      SYMFONY_TRUSTED_HEADERS: x-forwarded-for,x-forwarded-proto,x-forwarded-host
     volumes:
       - portfolio_uploads:/srv/app/public/uploads
     networks:
-      - caddy
+      - proxy
       - portfolio
       - postgresql
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.portfolio-back.rule=Host(`back.maengdok.fr`)"
+      - "traefik.http.routers.portfolio-back.entrypoints=websecure"
+      - "traefik.http.services.portfolio-back.loadbalancer.server.port=8080"
+    # Headroom for wkhtmltopdf (CV PDF)
+    mem_limit: 512m
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -27,11 +43,12 @@ volumes:
     name: portfolio_uploads
 
 networks:
-  caddy:
+  proxy:
+    name: proxy
     external: true
   portfolio:
-    external: true
-  dcup:
+    name: portfolio
     external: true
   postgresql:
+    name: postgresql
     external: true
