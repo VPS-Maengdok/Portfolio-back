@@ -2,8 +2,12 @@
 /var
 /.git
 /node_modules
+/.env
+/.env.dev
 /.env.local
 /.env.*.local
+/public/uploads
+**/.DS_Store
 /docker-compose*.yaml
 /.github
 /tests
