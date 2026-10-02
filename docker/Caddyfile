@@ -1,0 +1,21 @@
+# FrankenPHP server config (classic mode, no worker), used by both Dockerfiles.
+# HTTP only: TLS is terminated by Traefik.
+{
+	skip_install_trust
+	frankenphp
+}
+
+{$SERVER_NAME::8080} {
+	root public/
+	encode zstd br gzip
+	header -Server
+
+	# Uploaded files are user content on a writable volume: serve them as
+	# static files only, PHP is never executed under /uploads.
+	@uploads path /uploads/*
+	handle @uploads {
+		file_server
+	}
+
+	php_server
+}

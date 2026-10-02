@@ -4,27 +4,27 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: php:8.4-fpm
-    working_dir: /srv/portfolio
+    image: maengdok/portfolio_back:dev
     volumes:
-      - ./:/srv/portfolio
+      - ./:/srv/app
+    ports:
+      # Local only: never published on every interface
+      - "127.0.0.1:8000:8080"
     healthcheck:
-      test: ["CMD-SHELL", "php -v >/dev/null 2>&1"]
-      interval: 30s
+      # Healthy on any non-5xx answer (no /health route until P1.7)
+      test: ["CMD-SHELL", "code=$$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/) && [ \"$$code\" -ge 200 ] && [ \"$$code\" -lt 500 ]"]
+      interval: 10s
       timeout: 5s
       retries: 3
     networks:
-      - caddy
       - portfolio
       - postgresql
     restart: unless-stopped
 
 networks:
-  caddy:
-    external: true
   portfolio:
-    external: true
-  dcup:
+    name: portfolio
     external: true
   postgresql:
+    name: postgresql
     external: true
