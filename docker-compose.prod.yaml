@@ -5,12 +5,10 @@ name: portfolio-back
 
 services:
   portfolio_back:
-    # 1.0.0 = previous PHP-FPM image, kept on the VPS for rollback
-    image: maengdok/portfolio_back:2.0.0
+    # Built and pushed by the release workflow, never built on the server.
+    # IMAGE_TAG is the sha-<commit> tag being deployed; "latest" is never deployed.
+    image: ghcr.io/vps-maengdok/portfolio-back:${IMAGE_TAG:?set IMAGE_TAG to the image tag to deploy}
     container_name: maengdok_portfolio_back
-    build:
-      context: .
-      dockerfile: docker/prod.Dockerfile
     # Secrets (APP_SECRET, DATABASE_URL...) are read at runtime, never baked into the image
     env_file:
       - .env
