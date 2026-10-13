@@ -1,0 +1,172 @@
+name: ci
+
+# Runs on every pull request and on pushes to the long-lived branches.
+# Nothing here is pushed or deployed: see release.yml and deploy.yml.
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Same PHP minor as docker/prod.Dockerfile
+  PHP_VERSION: '8.4'
+  # gitleaks CLI image (the gitleaks GitHub Action needs a paid licence for organisations)
+  GITLEAKS_IMAGE: zricethezav/gitleaks:v8.28.0@sha256:cdbb7c955abce02001a9f6c9f602fb195b7fadc1e812065883f695d1eeaba854
+
+jobs:
+  checks:
+    name: validate and lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: intl, pdo_pgsql
+          coverage: none
+          tools: composer:v2
+
+      # --no-check-publish: this is a project, not a published package (no name/description)
+      - name: composer validate
+        run: composer validate --strict --no-check-publish
+
+      # Symfony needs a .env file to boot: the sample only holds fake values.
+      - name: Install
+        run: |
+          cp .env.sample .env
+          composer install --no-interaction --no-progress --prefer-dist
+
+      - name: lint:container
+        run: php bin/console lint:container
+
+      - name: lint:yaml
+        run: php bin/console lint:yaml config --parse-tags
+
+  audit:
+    name: dependency audit (high and critical)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+          tools: composer:v2
+
+      # composer audit has no severity threshold: it exits non-zero on any
+      # advisory. Read its JSON report and fail only on high or critical ones;
+      # lower severities are listed, not blocking.
+      - name: composer audit
+        run: |
+          report="$RUNNER_TEMP/composer-audit.json"
+          rc=0
+          composer audit --locked --no-interaction --format=json > "$report" || rc=$?
+          # Exit code bits: 1 = advisories found, 2 = abandoned packages. Anything else is an error.
+          if [ $((rc & ~3)) -ne 0 ]; then
+            echo "::error::composer audit failed (exit code $rc)"
+            exit 1
+          fi
+          jq -e '.advisories | type == "object" or type == "array"' "$report" > /dev/null
+          # list true|false: advisories that are (true) or are not (false) high/critical
+          list() {
+            jq -r --argjson blocking "$1" '.advisories[][]?
+              | select(((.severity == "high") or (.severity == "critical")) == $blocking)
+              | "\(.severity // "unknown")\t\(.packageName)\t\(.cve // .advisoryId)\t\(.title)"' "$report"
+          }
+          other=$(list false)
+          if [ -n "$other" ]; then
+            echo "Advisories below high (not blocking):"
+            echo "$other"
+          fi
+          # A null or unrecognised severity cannot be ranked, so it must not pass
+          # silently: warn (still non-blocking, only high and critical block).
+          unknown=$(jq -r '.advisories[][]?
+            | select((.severity // "") | IN("low", "medium", "high", "critical") | not)
+            | "\(.severity // "unknown")\t\(.packageName)\t\(.cve // .advisoryId)\t\(.title)"' "$report")
+          if [ -n "$unknown" ]; then
+            echo "::warning::Advisories with an unknown severity (review them by hand, not blocking):"
+            echo "$unknown"
+          fi
+          blocking=$(list true)
+          if [ -n "$blocking" ]; then
+            echo "::error::High or critical advisories in composer.lock:"
+            echo "$blocking"
+            exit 1
+          fi
+          echo "No high or critical advisory."
+
+  image:
+    name: production image (build only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build docker/prod.Dockerfile (not pushed)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: docker/prod.Dockerfile
+          push: false
+          cache-from: type=gha,scope=prod-image
+          cache-to: type=gha,mode=max,scope=prod-image
+
+  gitleaks:
+    name: secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Scans only the commits brought by the pull request or the push.
+      - name: gitleaks
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" = pull_request ]; then
+            range="$PR_BASE..$PR_HEAD"
+          elif [ -n "$PUSH_BEFORE" ] && git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null; then
+            range="$PUSH_BEFORE..$PUSH_AFTER"
+          else
+            # New branch (before = 0000...): scan its whole history
+            range="$PUSH_AFTER"
+          fi
+          echo "Scanning $range"
+          docker run --rm -v "$PWD:/repo" -w /repo \
+            -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0='*' \
+            "$GITLEAKS_IMAGE" git --redact --no-banner --verbose --log-opts="$range" /repo

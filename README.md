@@ -29,6 +29,21 @@ The repository is bind-mounted on `/srv/app`; the API listens on
   containers on these private Docker networks (Traefik) can reach the back, and
   Traefik overwrites any `X-Forwarded-For` sent by the client.
 
+## CI
+
+Every pull request, and every push to `main` and `develop`, runs
+`.github/workflows/ci.yml`:
+
+- `composer validate`, `composer install`, `lint:container` and `lint:yaml config`;
+- `composer audit` on `composer.lock`: fails on a high or critical advisory
+  (lower severities are listed, not blocking);
+- a build of the production image (`docker/prod.Dockerfile`), not pushed;
+- a gitleaks secret scan of the new commits.
+
+Each push to `main` publishes the production image to GitHub Container Registry,
+tagged `sha-<commit>` (`release.yml`). Deploys are manual and need an approval
+(`deploy.yml`). Dependabot opens weekly update pull requests against `develop`.
+
 ## Operations
 
 Operations (deploy, rollback) are documented in the private ops handbook.
