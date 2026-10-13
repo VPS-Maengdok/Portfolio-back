@@ -98,6 +98,15 @@ jobs:
             echo "Advisories below high (not blocking):"
             echo "$other"
           fi
+          # A null or unrecognised severity cannot be ranked, so it must not pass
+          # silently: warn (still non-blocking, only high and critical block).
+          unknown=$(jq -r '.advisories[][]?
+            | select((.severity // "") | IN("low", "medium", "high", "critical") | not)
+            | "\(.severity // "unknown")\t\(.packageName)\t\(.cve // .advisoryId)\t\(.title)"' "$report")
+          if [ -n "$unknown" ]; then
+            echo "::warning::Advisories with an unknown severity (review them by hand, not blocking):"
+            echo "$unknown"
+          fi
           blocking=$(list true)
           if [ -n "$blocking" ]; then
             echo "::error::High or critical advisories in composer.lock:"
