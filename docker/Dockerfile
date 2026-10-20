@@ -1,6 +1,6 @@
 # Development image: same base and extensions as docker/prod.Dockerfile,
 # the repository is bind-mounted on /srv/app by docker-compose.yaml.
-FROM dunglas/frankenphp:1.12.7-php8.4.26-bookworm
+FROM dunglas/frankenphp:1.13.1-php8.4.26-bookworm
 
 # opcache is built into the base image
 RUN install-php-extensions pdo_pgsql intl
