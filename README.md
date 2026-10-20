@@ -29,24 +29,21 @@ The repository is bind-mounted on `/srv/app`; the API listens on
   containers on these private Docker networks (Traefik) can reach the back, and
   Traefik overwrites any `X-Forwarded-For` sent by the client.
 
-## Deployment
+## CI
 
-```bash
-cd portfolio/back
-git pull
-# vendor/ and var/ must not exist in this folder (QW.3).
-# .env must hold every variable of .env.sample: it is not baked into the image.
-# It is read by Compose: keep values containing "$" in single quotes.
-docker compose -f docker-compose.prod.yaml config --quiet
-docker compose -f docker-compose.prod.yaml build --no-cache
-docker compose -f docker-compose.prod.yaml up -d
+Every pull request, and every push to `main` and `develop`, runs
+`.github/workflows/ci.yml`:
 
-curl -s -o /dev/null -w "%{http_code}\n" "https://back.maengdok.fr/curriculum/first?locale=fr"   # 200
-curl -s -o /dev/null -w "%{http_code}\n" "https://back.maengdok.fr/user/"                        # 401
-curl -s -o /tmp/cv.pdf "https://back.maengdok.fr/curriculum/pdf/1?locale=fr" && file /tmp/cv.pdf # PDF
-docker inspect maengdok_portfolio_back --format '{{.State.Health.Status}}'                       # healthy
-```
+- `composer validate`, `composer install`, `lint:container` and `lint:yaml config`;
+- `composer audit` on `composer.lock`: fails on a high or critical advisory
+  (lower severities are listed, not blocking);
+- a build of the production image (`docker/prod.Dockerfile`), not pushed;
+- a gitleaks secret scan of the new commits.
 
-Bump the `image:` tag in `docker-compose.prod.yaml` for every release, so the
-previous image stays on the VPS for a rollback (`1.0.0` = last PHP-FPM image,
-`2.0.0` = first FrankenPHP image).
+Each push to `main` publishes the production image to GitHub Container Registry,
+tagged `sha-<commit>` (`release.yml`). Deploys are manual and need an approval
+(`deploy.yml`). Dependabot opens weekly update pull requests against `develop`.
+
+## Operations
+
+Operations (deploy, rollback) are documented in the private ops handbook.

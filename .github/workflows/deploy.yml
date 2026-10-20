@@ -1,0 +1,164 @@
+name: deploy
+run-name: deploy ${{ inputs.tag }}
+
+# Manual deploy of an image already pushed by release.yml.
+# Needs an approval on the "production" environment. Rollback = run this
+# workflow again with the previous sha- tag.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Image tag to deploy: sha-<commit> (printed by the release run)'
+        required: true
+        type: string
+
+permissions: {}
+
+# One deploy at a time for this repository; a running deploy is never cancelled.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/vps-maengdok/portfolio-back
+
+jobs:
+  deploy:
+    name: deploy to production
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      packages: read
+    environment:
+      name: production
+      url: https://back.maengdok.fr/
+    steps:
+      - name: Validate the tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [[ ! "$TAG" =~ ^sha-[0-9a-f]{7,40}$ ]]; then
+            echo "::error::Invalid tag. Expected sha-<7 to 40 lowercase hex characters>."
+            exit 1
+          fi
+
+      # The package is private: log in with the workflow token (read access).
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Authenticated lookup: fails if the tag does not exist or the token
+      # cannot read the package.
+      - name: Check the image exists on GHCR
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if ! docker manifest inspect "$IMAGE:$TAG" > /dev/null; then
+            echo "::error::$IMAGE:$TAG not found, or this repository has no read access to the package."
+            exit 1
+          fi
+
+      - name: Write the SSH key and known_hosts
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          if [ -z "$DEPLOY_SSH_KEY" ] || [ -z "$DEPLOY_KNOWN_HOSTS" ]; then
+            echo "::error::DEPLOY_SSH_KEY and DEPLOY_KNOWN_HOSTS must be set on the production environment."
+            exit 1
+          fi
+          SSH_DIR="$RUNNER_TEMP/deploy-ssh"
+          umask 077
+          mkdir -p "$SSH_DIR"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$SSH_DIR/key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$SSH_DIR/known_hosts"
+          chmod 600 "$SSH_DIR/key" "$SSH_DIR/known_hosts"
+
+      # The key is restricted on the server to a forced command: the only thing
+      # sent is the tag. The server pulls the image, recreates the container and
+      # waits until it is healthy; exit code 0 = deployed and healthy.
+      - name: Deploy
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [ -z "$DEPLOY_HOST" ]; then
+            echo "::error::DEPLOY_HOST must be set on the production environment."
+            exit 1
+          fi
+          SSH_DIR="$RUNNER_TEMP/deploy-ssh"
+          ssh -F /dev/null -T \
+            -i "$SSH_DIR/key" -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_DIR/known_hosts" \
+            -o GlobalKnownHostsFile=/dev/null \
+            -o ConnectTimeout=20 -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
+            "deploy@$DEPLOY_HOST" "$TAG"
+
+      - name: Remove the SSH key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/deploy-ssh"
+
+      - name: Public checks
+        run: |
+          # check <url> <expected HTTP code> [follow]: retries for about 60 seconds.
+          # With "follow", redirects are followed (max 5) and the final code is checked.
+          # The server-side deploy result is the "Deploy" step above (exit 0 = deployed and healthy).
+          check() {
+            local url=$1 expected=$2 follow=${3:-} host tries=${CHECK_TRIES:-15} delay=4
+            local v4 v6 i code ip time eff nred out err hdr msg extra fmt
+            local opts=()
+            fmt='%{http_code}|%{remote_ip}|%{time_total}'
+            if [ "$follow" = follow ]; then
+              opts=(-L --max-redirs 5)
+              fmt='%{http_code}|%{remote_ip}|%{time_total}|%{url_effective}|%{num_redirects}'
+            fi
+            host=${url#*://}
+            host=${host%%[/:]*}
+            hdr=$(mktemp)
+            err=$(mktemp)
+
+            # Resolve the host first: the runner has no IPv6, so an AAAA-only host is unreachable
+            v4=$(getent ahostsv4 "$host" | awk '{print $1}' | sort -u | paste -sd' ' - || true)
+            v6=$(getent ahostsv6 "$host" | awk '{print $1}' | grep -vi '^::ffff:' | sort -u | paste -sd' ' - || true)
+            echo "DNS $host: IPv4 = ${v4:-none}; IPv6 = ${v6:-none}"
+            if [ -z "$v4" ]; then
+              echo "::error::$host has no IPv4 address (DNS A record). GitHub runners have no IPv6, and IPv4-only visitors cannot reach it. Add the A record; the deploy itself may have succeeded on the server."
+              echo "Server-side deploy result: see the \"Deploy\" step above (exit 0 = deployed and healthy)."
+              return 1
+            fi
+
+            for i in $(seq 1 "$tries"); do
+              : > "$hdr"
+              out=$(curl -4 -sS "${opts[@]}" -o /dev/null -D "$hdr" --max-time 10 --connect-timeout 5 \
+                -w "$fmt" "$url" 2> "$err" || true)
+              IFS='|' read -r code ip time eff nred <<< "$out"
+              msg=$(tr '\n' ' ' < "$err")
+              code=${code:-000}
+              extra=${eff:+, final $eff, ${nred:-0} redirect(s)}
+              if [ "$code" = "$expected" ]; then
+                echo "OK $url -> $code (ip ${ip:-none}, ${time:-0}s$extra)"
+                return 0
+              fi
+              echo "try $i/$tries: $url -> $code (expected $expected), ip ${ip:-none}, ${time:-0}s${extra}${msg:+, curl: $msg}"
+              [ "$i" -lt "$tries" ] && sleep "$delay"
+            done
+
+            echo "::error::$url did not answer $expected after $tries tries. Roll back: run this workflow with the previous sha- tag."
+            echo "Server-side deploy result: see the \"Deploy\" step above (exit 0 = deployed and healthy). A failed check alone does not mean a failed deploy."
+            echo "Last response (Set-Cookie removed):"
+            if [ -s "$hdr" ]; then grep -vi '^set-cookie:' "$hdr" || true; else echo "(no response received)"; fi
+            echo "Hints: 000 = no TCP/TLS connection (DNS, firewall, Traefik down); 3xx = redirect, see Location; 429 = Traefik rate-limit; 404 = router/host rule; 502/504 = Traefik cannot reach the container."
+            return 1
+          }
+          rc=0
+          check 'https://back.maengdok.fr/curriculum/first?locale=fr' 200 || rc=1
+          check https://back.maengdok.fr/user/ 401 || rc=1
+          exit "$rc"
+      - name: Summary
+        if: success()
+        env:
+          TAG: ${{ inputs.tag }}
+        run: echo "Deployed \`$IMAGE:$TAG\`. Rollback = run this workflow with the previous sha- tag." >> "$GITHUB_STEP_SUMMARY"
