@@ -9,9 +9,11 @@
 #   - publishes a port with no host_ip, or with any host_ip that is not
 #     127.0.0.1 or ::1 (0.0.0.0, ::, [::] and empty included);
 #   - uses network_mode: host.
-# Only the Traefik service may publish published ports 80 and 443 on any address.
+# Only the Traefik service may publish published ports 80 and 443 on any address,
+# for any protocol (tcp or udp).
 # A port range (8000-8010) is checked like a single port: it must be loopback,
 # and it is never exempt (the exemption is for exactly 80 or 443).
+# Services under a profile are checked too (--profile '*').
 #
 # Only the production compose file is checked, never the dev one. .env is not
 # in CI (gitignored), so the file is copied to a temp dir with an empty .env and
@@ -23,7 +25,7 @@
 #      TRAEFIK_SERVICE=traefik,
 #      DUMMY_ENV="KEY=VAL KEY2=VAL2" (extra dummy values for ${VAR:?} in the file;
 #      IMAGE_TAG=sha-0000000 is always set).
-# Needs: docker compose v2 and jq.
+# Needs: docker compose v2 and jq. Works with bash 3.2 (macOS) and later.
 # Exit: 0 = ok, 1 = rule broken, 2 = usage or compose config error.
 set -euo pipefail
 
@@ -37,14 +39,25 @@ trap 'rm -rf "$tmp"' EXIT
 cp "$file" "$tmp/compose.yaml"
 : > "$tmp/.env"
 
-# DUMMY_ENV is split on spaces on purpose
+# DUMMY_ENV is split on spaces on purpose.
 read -r -a extra <<< "${DUMMY_ENV:-}"
+# stdout (the JSON) and stderr (errors, warnings) are kept apart: a warning
+# must not end up in the JSON given to jq.
 rc=0
-json="$(cd "$tmp" && env IMAGE_TAG=sha-0000000 "${extra[@]}" \
-  docker compose -f compose.yaml config --format json 2>&1)" || rc=$?
+# ${extra[@]+...}: an empty array with set -u fails on bash 3.2 (macOS).
+json="$(cd "$tmp" && env IMAGE_TAG=sha-0000000 ${extra[@]+"${extra[@]}"} \
+  docker compose -f compose.yaml --profile '*' config --format json 2> "$tmp/config.err")" || rc=$?
 if [ "$rc" -ne 0 ]; then
-  echo "docker compose config failed for $file:" >&2
-  echo "$json" >&2
+  echo "docker compose config failed for $file (exit $rc):" >&2
+  if [ -s "$tmp/config.err" ]; then
+    cat "$tmp/config.err" >&2
+  else
+    echo "(docker compose printed no error message)" >&2
+  fi
+  exit 2
+fi
+if [ -z "$json" ]; then
+  echo "docker compose config printed nothing for $file: cannot check the ports." >&2
   exit 2
 fi
 

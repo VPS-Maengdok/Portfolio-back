@@ -98,6 +98,19 @@ fixture app '    env_file:
       - missing.env'
 run_check 2 "docker compose config failed"
 
+case_ "a service under a profile is checked too"
+fixture app '    restart: always
+  db:
+    image: example/db:latest
+    profiles: [debug]
+    ports: ["5432:5432"]'
+run_check 1 "FAIL db: all interfaces:5432 -> 5432/tcp"
+
+case_ "a compose warning on stderr does not break the check"
+fixture app '    ports: ["127.0.0.1:5432:5432"]'
+printf 'version: "3.8"\n' | cat - "$FX/docker-compose.prod.yaml" > "$FX/c.tmp" && mv "$FX/c.tmp" "$FX/docker-compose.prod.yaml"
+run_check 0 "1 published ports checked, 0 failures"
+
 case_ "the repo is not written to"
 [ ! -e "$FX/.env" ] || { echo "  FAIL: .env created in the fixture dir"; fails=$((fails + 1)); }
 
