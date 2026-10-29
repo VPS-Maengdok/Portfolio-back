@@ -15,7 +15,7 @@ RUN composer dump-autoload --classmap-authoritative --no-dev --no-interaction
 
 # FrankenPHP in classic mode (no worker), Debian bookworm: wkhtmltopdf is not
 # packaged in trixie. Keep it until the PDF moves to Gotenberg (P9.5).
-FROM dunglas/frankenphp:1.12.7-php8.4.26-bookworm AS php
+FROM dunglas/frankenphp:1.13.4-php8.4.27-bookworm AS php
 
 # opcache is built into the base image
 RUN install-php-extensions pdo_pgsql intl
